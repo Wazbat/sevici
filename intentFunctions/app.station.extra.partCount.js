@@ -8,7 +8,7 @@ module.exports = async (agent) => {
     let responseString = '';
     switch (agent.parameters.stationPart) {
         case 'dock':
-            responseString = `There are a total of ${updatedStation.bike_stands} stands, with ${updatedStation.available_bike_stands} available now.`;
+            responseString = `There are a total of ${updatedStation.bike_stands} stands, with ${updatedStation.available_bike_stands} unoccupied.`;
             break;
         case 'bicycle':
             responseString = `There are ${updatedStation.available_bikes} bikes available, with room to park ${updatedStation.bike_stands - updatedStation.available_bike_stands} more.`;
