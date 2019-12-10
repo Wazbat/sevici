@@ -19,8 +19,12 @@ module.exports = (agent) => {
             permissions,
         };
         conv.ask(new Permission(options));
+
+        const filter = buildFilter(agent.parameters.criteria);
+        if (agent.parameters.stationPart === 'bicycle') filter.freeBikes = true;
+        if (agent.parameters.stationPart === 'free dock') filter.freeParking = true;
         conv.data.event = 'station-search';
-        conv.data.filter = buildFilter(agent.parameters.criteria);
+        conv.data.filter = filter;
         conv.data.originalParams = agent.parameters;
 
         agent.add(conv)
