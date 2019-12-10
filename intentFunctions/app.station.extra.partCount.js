@@ -2,8 +2,8 @@ const Sevici = require('../sevici');
 const seviciService = new Sevici(process.env.JCDECAUXAPIKEY);
 
 module.exports = async (agent) => {
-    const oldStation = agent.context.get('station').parameters.station;
     const conv = agent.conv();
+    const oldStation = conv.contexts.get('station').parameters;
     const updatedStation = await seviciService.getStation(oldStation.number);
     let responseString = '';
     switch (agent.parameters.stationPart) {
@@ -20,4 +20,5 @@ module.exports = async (agent) => {
     if (updatedStation.status !== 'OPEN') responseString += ` Be aware, the station is currently ${updatedStation.status}`;
     conv.ask(responseString);
     conv.contexts.set('station', 5, updatedStation);
+    agent.add(conv)
 };
