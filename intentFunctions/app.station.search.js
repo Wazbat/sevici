@@ -1,0 +1,32 @@
+const {buildFilter} = require("../utils");
+const { Permission, Place} = require('actions-on-google');
+module.exports = (agent) => {
+    console.log('Station search intent');
+    const conv = agent.conv();
+    if (conv) {
+        // Only enters if requestSource === PLATFORMS.ACTIONS_ON_GOOGLE
+        const permissions = ['DEVICE_PRECISE_LOCATION'];
+        const context = 'To find stations';
+        // Location permissions only work for verified users
+        // https://developers.google.com/actions/assistant/guest-users
+        if (conv.user.verification === 'VERIFIED') {
+            // Could use DEVICE_COARSE_LOCATION instead for city, zip code
+            // permissions = ['DEVICE_PRECISE_LOCATION'];
+            // context += 'To know your location';
+        }
+        const options = {
+            context,
+            permissions,
+        };
+        conv.ask(new Permission(options));
+        conv.data.event = 'station-search';
+        conv.data.filter = buildFilter(agent.parameters.criteria);
+        conv.data.originalParams = agent.parameters;
+
+        agent.add(conv)
+
+    } else {
+        agent.add('Not actions on google')
+    }
+
+}
