@@ -1,8 +1,8 @@
 const { BasicCard, Button, Image }  = require("actions-on-google");
-const { buildStationString } = require("../utils");
-const { getDirection } = require("../utils");
+const { buildStationString } = require("../../utils");
+const { getDirection } = require("../../utils");
 const geolib = require('geolib');
-const Sevici = require('../sevici');
+const Sevici = require('../../sevici');
 const seviciService = new Sevici(process.env.JCDECAUXAPIKEY);
 const buildUrl = require('build-url');
 module.exports = {

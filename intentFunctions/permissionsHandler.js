@@ -1,6 +1,6 @@
 const geolib = require('geolib');
 
-const { specificStationSearch } = require("../functions/station-search");
+const { specificStationSearch } = require("./permissionsHandlerFunctions/station-search");
 
 
 module.exports = async (agent) => {
