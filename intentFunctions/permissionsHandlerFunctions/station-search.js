@@ -25,6 +25,7 @@ module.exports = {
         });
 
          */
+        if (!location) return conv.ask(`I'm sorry. I need to access your precise location to be able to search for stations. Is there anything else I can help you with?`);
         const query = conv.data.filter;
         query.coordinates = location.coordinates;
         const station = await seviciService.searchStation(query);
