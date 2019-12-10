@@ -27,9 +27,9 @@ module.exports = {
          */
         const query = conv.data.filter;
         query.coordinates = location.coordinates;
-        const station = await seviciService.findStation(query);
+        const station = await seviciService.searchStation(query);
         const distance = geolib.getDistance(location.coordinates, station.position);
-        const direction = getDirection(location.coordinates, station.position)
+        const direction = getDirection(location.coordinates, station.position);
 
         const humanizedName = station.name.replace(/\d+_/i, '');
 
@@ -79,5 +79,6 @@ module.exports = {
             }),
             display: 'CROPPED',
         }));
+        conv.contexts.set('station', 5, station);
     }
 }

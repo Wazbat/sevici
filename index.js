@@ -11,6 +11,7 @@ app.use(express.json());
 let intentFunctions = new Map();
 intentFunctions.set('app.station.search', require('./intentFunctions/app.station.search'));
 intentFunctions.set('aog.permissions.handler', require('./intentFunctions/permissionsHandler'));
+intentFunctions.set('app.station.extra.partCount', require('./intentFunctions/app.station.extra.partCount'));
 intentFunctions.set('Place Handler', (agent) => {
     const conv = agent.conv();
     if (conv) {

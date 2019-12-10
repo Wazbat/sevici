@@ -5,7 +5,7 @@ class Sevici {
     constructor(key) {
         this.apiKey = key;
     }
-    async findStation(query) {
+    async searchStation(query) {
 
         let { data:stations } = await axios.get('https://api.jcdecaux.com/vls/v1/stations', {
             params: {
@@ -68,7 +68,15 @@ class Sevici {
         }
 
     }
-
+    async getStation(stationNumber) {
+        let { data:station } = await axios.get(`https://api.jcdecaux.com/vls/v1/stations/${stationNumber}`, {
+            params: {
+                apiKey: this.apiKey,
+                contract: 'seville'
+            }
+        });
+        return station;
+    }
 
 }
 
