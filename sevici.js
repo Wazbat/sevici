@@ -1,4 +1,5 @@
 const axios = require('axios');
+const geolib = require('geolib');
 class Sevici {
     constructor(key) {
         this.apiKey = key;
