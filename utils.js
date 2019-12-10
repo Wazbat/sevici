@@ -1,4 +1,5 @@
 const geolib = require('geolib');
+const _ = require('lodash');
 module.exports = {
     /**
      * Builds a object with optional properties that are later used to search
