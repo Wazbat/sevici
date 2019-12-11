@@ -1,5 +1,7 @@
 const geolib = require('geolib');
 const _ = require('lodash');
+const Sevici = require("./sevici");
+const seviciService = new Sevici(process.env.JCDECAUXAPIKEY);
 module.exports = {
     /**
      * Builds a object with optional properties that are later used to search
@@ -66,5 +68,12 @@ module.exports = {
         }
         string += ` is ${name}, ${distanceString} away to the ${direction}`;
         return string;
+    },
+    async updateStation(conv) {
+        const oldStation = conv.contexts.get('station').parameters;
+        const updatedStation = await seviciService.getStation(oldStation.number);
+        conv.contexts.set('station', 5, updatedStation);
+        return updatedStation;
+
     }
 };
