@@ -14,6 +14,7 @@ module.exports = async (agent) => {
             case 'station-distance':
                 await stationDistance(conv);
                 agent.add(conv);
+                break;
             default:
                 throw new Error(`Search handler with unhandled event: ${conv.data.event}`)
         }
