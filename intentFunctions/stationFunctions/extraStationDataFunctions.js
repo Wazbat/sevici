@@ -12,7 +12,7 @@ module.exports = {
                 responseString = `There are ${updatedStation.available_bikes} bikes available, with room to park ${updatedStation.available_bike_stands} more.`;
                 break;
             default:
-                responseString = `There are ${updatedStation.available_bikes} bikes and ${updatedStation.bike_stands - updatedStation.available_bikes} free stands.`;
+                responseString = `There are ${updatedStation.available_bikes} bikes and ${updatedStation.available_bike_stands} free stands.`;
         }
         if (updatedStation.status !== 'OPEN') responseString += ` Be aware, the station is currently ${updatedStation.status}`;
         return responseString;
