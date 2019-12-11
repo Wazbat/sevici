@@ -1,14 +1,14 @@
 const geolib = require('geolib');
 
-const specificStationSearch = require("./permissionsHandlerFunctions/station-search");
-const stationDistance = require('./permissionsHandlerFunctions/station-distance');
+const { stationSearch } = require("./permissionsHandlerFunctions/station-search");
+const { stationDistance } = require('./permissionsHandlerFunctions/station-distance');
 
 module.exports = async (agent) => {
     const conv = agent.conv();
     if (conv) {
         switch (conv.data.event) {
             case 'station-search':
-                await specificStationSearch(conv);
+                await stationSearch(conv);
                 agent.add(conv);
                 break;
             case 'station-distance':

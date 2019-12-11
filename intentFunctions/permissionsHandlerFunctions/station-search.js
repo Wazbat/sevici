@@ -6,8 +6,10 @@ const Sevici = require('../../sevici');
 const seviciService = new Sevici(process.env.JCDECAUXAPIKEY);
 const buildUrl = require('build-url');
 const { humanizeStationName } = require("../../utils");
-module.exports = async (conv) => {
-        const { location } = conv.device;
+const { Permission, Place } = require('actions-on-google');
+module.exports = {
+    async stationSearch(conv) {
+        const {location} = conv.device;
         /*
         {
             coordinates: { latitude: 36.8775256, longitude: -5.4021203 },
@@ -71,4 +73,18 @@ module.exports = async (conv) => {
             display: 'CROPPED',
         }));
         conv.contexts.set('station', 5, station);
-}
+    },
+    stationSearchRequester(conv, filter) {
+        const permissions = ['DEVICE_PRECISE_LOCATION'];
+        const context = 'To find stations';
+        // Location permissions only work for verified users
+        // https://developers.google.com/actions/assistant/guest-users
+        const options = {
+            context,
+            permissions,
+        };
+        conv.ask(new Permission(options));
+        conv.data.event = 'station-search';
+        conv.data.filter = filter;
+    }
+};
