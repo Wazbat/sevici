@@ -1,7 +1,7 @@
-const { updateStation } = require("../../utils");
+const { updateStationContext } = require("../../utils");
 module.exports = {
     async getPartCount (conv) {
-        const updatedStation = await updateStation(conv);
+        const updatedStation = await updateStationContext(conv);
         let responseString = '';
         switch (conv.parameters.stationPart) {
             case 'dock':

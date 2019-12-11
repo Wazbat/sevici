@@ -5,8 +5,7 @@ const geolib = require('geolib');
 const Sevici = require('../../sevici');
 const seviciService = new Sevici(process.env.JCDECAUXAPIKEY);
 const buildUrl = require('build-url');
-module.exports = {
-    async specificStationSearch (conv) {
+module.exports = async (conv) => {
         const { location } = conv.device;
         /*
         {
@@ -81,5 +80,4 @@ module.exports = {
             display: 'CROPPED',
         }));
         conv.contexts.set('station', 5, station);
-    }
 }

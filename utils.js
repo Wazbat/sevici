@@ -60,20 +60,36 @@ module.exports = {
             if (query.freeBikes || query.freeBikes === false) string += ' and ';
             string += 'without any space to park';
         }
-        let distanceString;
-        if (distance > 999) {
-            distanceString = `${_.round(distance/1000, 1)} kilometers`
-        } else {
-            distanceString = `${distance} meters`
-        }
+        const distanceString = module.exports.roundDistance(distance);
         string += ` is ${name}, ${distanceString} away to the ${direction}`;
         return string;
     },
-    async updateStation(conv) {
-        const oldStation = conv.contexts.get('station').parameters;
+    /**
+     * Update the conv object context with the station context of the requested station. To be called in any function that already has the station context.
+     * Returns the updated station
+     * @param conv
+     * @returns {Promise<*>}
+     */
+    async updateStationContext(conv) {
+        const context = conv.contexts.get('station');
+        if (!context) throw new Error('No station context');
+        const oldStation = context.parameters;
         const updatedStation = await seviciService.getStation(oldStation.number);
         conv.contexts.set('station', 5, updatedStation);
         return updatedStation;
+
+    },
+    /**
+     * Takes a number, the distance in meters. Rounds to kilometers if greater than 999.
+     * Example responses:
+     * 22 meters
+     * 3.5 kilometers
+     * @param distance {number} Distance in meters
+     * @returns {string} Number and unit
+     */
+    roundDistance(distance) {
+        if (distance > 999) return `${_.round(distance/1000, 1)} kilometers`;
+        return `${distance} meters`;
 
     }
 };
