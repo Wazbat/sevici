@@ -1,5 +1,4 @@
-const Sevici = require('../sevici');
-const {getPartCount} = require("./stationFunctions/extraStationDataFunctions");
+const { getPartCount } = require("./stationFunctions/extraStationDataFunctions");
 
 
 module.exports = async (agent) => {
