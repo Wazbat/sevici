@@ -13,7 +13,6 @@ module.exports = async (conv) => {
      */
     if (!location) return conv.ask(`I'm sorry. I need to access your precise location to do this. Is there anything else I can help you with?`);
     await updateStationContext(conv);
-    query.coordinates = location.coordinates;
     const station = conv.contexts.get('station').parameters;
     const distance = geolib.getDistance(location.coordinates, station.position);
     const response = `You're currently ${roundDistance(distance)} away`;
