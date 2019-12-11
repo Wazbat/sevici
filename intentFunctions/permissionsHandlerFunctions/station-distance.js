@@ -1,6 +1,5 @@
-const {updateStationContext} = require("../../utils");
+const { updateStationContext, roundDistance, humanizeStationName, getDirection } = require("../../utils");
 const geolib = require('geolib');
-const {roundDistance} = require("../../utils");
 module.exports = async (conv) => {
     const { location } = conv.device;
     /*
@@ -15,6 +14,6 @@ module.exports = async (conv) => {
     await updateStationContext(conv);
     const station = conv.contexts.get('station').parameters;
     const distance = geolib.getDistance(location.coordinates, station.position);
-    const response = `You're currently ${roundDistance(distance)} away`;
+    const response = `${humanizeStationName(station.name)} is ${roundDistance(distance)} away to the ${getDirection(location.coordinates, station.position)}`;
     conv.ask(response);
 };

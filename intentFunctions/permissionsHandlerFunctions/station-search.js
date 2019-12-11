@@ -5,6 +5,7 @@ const geolib = require('geolib');
 const Sevici = require('../../sevici');
 const seviciService = new Sevici(process.env.JCDECAUXAPIKEY);
 const buildUrl = require('build-url');
+const { humanizeStationName } = require("../../utils");
 module.exports = async (conv) => {
         const { location } = conv.device;
         /*
@@ -31,7 +32,7 @@ module.exports = async (conv) => {
         const distance = geolib.getDistance(location.coordinates, station.position);
         const direction = getDirection(location.coordinates, station.position);
 
-        const humanizedName = station.name.replace(/\d+_/i, '');
+        const humanizedName = humanizeStationName(station.name);
 
         const textMessage = buildStationString(humanizedName, distance, direction, query);
         conv.ask(textMessage);
@@ -53,16 +54,6 @@ module.exports = async (conv) => {
                         queryParams: {
                             api: 1,
                             destination: `${station.position.lat},${station.position.lng}`
-                        }
-                    })
-                }),
-                new Button({
-                    title: 'Navigate to',
-                    url: buildUrl('https://www.google.com/maps/dir/', {
-                        queryParams: {
-                            api: 1,
-                            destination: `${station.position.lat},${station.position.lng}`,
-                            dir_action: 'navigate'
                         }
                     })
                 })

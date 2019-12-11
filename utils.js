@@ -91,5 +91,15 @@ module.exports = {
         if (distance > 999) return `${_.round(distance/1000, 1)} kilometers`;
         return `${distance} meters`;
 
+    },
+    /**
+     * Convert sevici station names into a human readable format
+     * @param name
+     * @returns {string|void}
+     */
+    humanizeStationName(name) {
+        let humanizedName = name.replace(/\d+_/i, '');
+        humanizedName = _.startCase(_.toLower(humanizedName));
+        return humanizedName;
     }
 };

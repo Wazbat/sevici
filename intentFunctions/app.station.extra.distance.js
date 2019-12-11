@@ -1,7 +1,5 @@
 const { Permission } = require('actions-on-google');
 
-const { getDistance } = require("./stationFunctions/extraStationDataFunctions");
-
 
 module.exports = async (agent) => {
     const conv = agent.conv();
