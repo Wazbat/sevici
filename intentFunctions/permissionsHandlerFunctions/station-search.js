@@ -1,12 +1,8 @@
-const { BasicCard, Button, Image }  = require("actions-on-google");
-const { buildStationString } = require("../../utils");
-const { getDirection } = require("../../utils");
 const geolib = require('geolib');
 const Sevici = require('../../sevici');
 const seviciService = new Sevici(process.env.JCDECAUXAPIKEY);
-const buildUrl = require('build-url');
-const { humanizeStationName } = require("../../utils");
-const { Permission, Place } = require('actions-on-google');
+const { generateStationCard, humanizeStationName, getDirection, buildStationString } = require("../../utils");
+const { Permission } = require('actions-on-google');
 module.exports = {
     async stationSearch(conv) {
         const {location} = conv.device;
@@ -19,14 +15,6 @@ module.exports = {
           }
          */
         const user = conv.user;
-        /*
-        console.log('Previous event', conv.data.event);
-        conv.followup(conv.data.event, {
-            coordinates: location.coordinates,
-            ...conv.data.originalParams
-        });
-
-         */
         if (!location) return conv.ask(`I'm sorry. I need to access your precise location to be able to search for stations. Is there anything else I can help you with?`);
         const query = conv.data.filter;
         query.coordinates = location.coordinates;
@@ -38,40 +26,7 @@ module.exports = {
 
         const textMessage = buildStationString(humanizedName, distance, direction, query);
         conv.ask(textMessage);
-        conv.ask(new BasicCard({
-            text: `Distance: **${distance} meters**  \n
-                Available bikes: **${station.available_bikes}**  \n
-                Available stands: **${station.available_bike_stands}**  \n
-                Total stands: **${station.bike_stands}**  \n
-                Address: **${station.address}**  \n
-                Status: **${station.status}**  \n
-                Query: **${conv.data.originalParams.criteria.join(' ')}**
-                `,
-            // subtitle: 'This is a subtitle',
-            title: humanizedName,
-            buttons: [
-                new Button({
-                    title: 'View on map',
-                    url: buildUrl('https://www.google.com/maps/dir/', {
-                        queryParams: {
-                            api: 1,
-                            destination: `${station.position.lat},${station.position.lng}`
-                        }
-                    })
-                })
-            ],
-            image: new Image({
-                url: buildUrl('https://maps.googleapis.com/maps/api/staticmap', {
-                    queryParams: {
-                        markers: `${station.position.lat},${station.position.lng}`,
-                        size: `700x300`,
-                        key: process.env.STATICMAPAPIKEY
-                    }
-                }),
-                alt: 'dock location',
-            }),
-            display: 'CROPPED',
-        }));
+        conv.ask(generateStationCard(station, { distance, originalParams: conv.data.originalParams }));
         conv.contexts.set('station', 5, station);
     },
     stationSearchRequester(conv, filter) {

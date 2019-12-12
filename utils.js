@@ -2,6 +2,8 @@ const geolib = require('geolib');
 const _ = require('lodash');
 const Sevici = require("./sevici");
 const seviciService = new Sevici(process.env.JCDECAUXAPIKEY);
+const buildUrl = require('build-url');
+const { BasicCard, Button, Image }  = require("actions-on-google");
 module.exports = {
     /**
      * Builds a object with optional properties that are later used to search
@@ -63,6 +65,44 @@ module.exports = {
         const distanceString = module.exports.roundDistance(distance);
         string += ` is ${name}, ${distanceString} away to the ${direction}`;
         return string;
+    },
+    generateStationCard(station, data) {
+        const humanizedName = module.exports.humanizeStationName(station.name);
+        return new BasicCard({
+            // TODO Make distance and Query optional
+            text: `Distance: **${data.distance} meters**  \n
+                Available bikes: **${station.available_bikes}**  \n
+                Available stands: **${station.available_bike_stands}**  \n
+                Total stands: **${station.bike_stands}**  \n
+                Address: **${station.address}**  \n
+                Status: **${station.status}**  \n
+                Query: **${data.originalParams.criteria.join(' ')}**
+                `,
+            // subtitle: 'This is a subtitle',
+            title: humanizedName,
+            buttons: [
+                new Button({
+                    title: 'View on map',
+                    url: buildUrl('https://www.google.com/maps/dir/', {
+                        queryParams: {
+                            api: 1,
+                            destination: `${station.position.lat},${station.position.lng}`
+                        }
+                    })
+                })
+            ],
+            image: new Image({
+                url: buildUrl('https://maps.googleapis.com/maps/api/staticmap', {
+                    queryParams: {
+                        markers: `${station.position.lat},${station.position.lng}`,
+                        size: `700x300`,
+                        key: process.env.STATICMAPAPIKEY
+                    }
+                }),
+                alt: 'dock location',
+            }),
+            display: 'CROPPED',
+        })
     },
     /**
      * Update the conv object context with the station context of the requested station. To be called in any function that already has the station context.
