@@ -29,9 +29,14 @@ module.exports = {
         conv.ask(generateStationCard(station, { distance, originalParams: conv.data.originalParams }));
         conv.contexts.set('station', 5, station);
     },
-    stationSearchRequester(conv, filter) {
+    /**
+     *
+     * @param conv Conv object
+     * @param filter Filter for station search. Returns the closest station if omitted
+     * @param context Optional context to explain why the location is being requested
+     */
+    stationSearchRequester(conv, filter = {closest: true}, context = 'To find stations') {
         const permissions = ['DEVICE_PRECISE_LOCATION'];
-        const context = 'To find stations';
         // Location permissions only work for verified users
         // https://developers.google.com/actions/assistant/guest-users
         const options = {
