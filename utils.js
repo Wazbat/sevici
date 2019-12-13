@@ -67,7 +67,7 @@ module.exports = {
     },
     buildStationDetailsString(station) {
       let string = module.exports.humanizeStationName(station.name);
-      string += ` has ${station.available_bikes} bikes and ${station.available_bike_stands} spaces to park.`;
+      string += ` has ${station.available_bikes} bikes available and ${station.available_bike_stands} free spaces to park`;
       return string;
     },
     generateStationCard(station, data = {}) {
