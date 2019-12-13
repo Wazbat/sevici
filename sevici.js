@@ -23,14 +23,14 @@ class Sevici {
         } else if (query.freeParking === false) {
             stations = stations.filter(station => station.available_bike_stands === 0);
         }
-        const orderedStations = geolib.orderByDistance(query.coordinates, stations.map(station => station.position));
-        let resultCoordinates;
-        if (query.closest) {
-            resultCoordinates = orderedStations[0];
-        } else {
-            resultCoordinates = orderedStations[orderedStations.length - 1];
-        }
-        return stations.filter(station => _.isEqual(station.position, resultCoordinates))[0];
+
+        const orderedStations = geolib.orderByDistance(
+            query.coordinates,
+            stations,
+            (point, station) => geolib.getDistance(point, station.position)
+        );
+        if (query.closest) return orderedStations[0];
+        return orderedStations[orderedStations.length - 1];
 
     }
     async searchStations(query) {
