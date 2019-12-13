@@ -66,7 +66,7 @@ module.exports = {
         return string;
     },
     buildStationDetailsString(station) {
-      let string = module.exportshumanizeStationName(station.name);
+      let string = module.exports.humanizeStationName(station.name);
       string += `has ${station.available_bikes} bikes and ${station.available_bike_stands} spaces to park.`;
       return string;
     },
