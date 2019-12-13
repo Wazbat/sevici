@@ -1,6 +1,5 @@
 const { WebhookClient} = require('dialogflow-fulfillment');
 const fs = require('fs');
-const _ = require('lodash');
 const express = require('express');
 const https = require('https');
 require('dotenv').config();
@@ -13,8 +12,10 @@ intentFunctions.set('app.station.search', require('./intentFunctions/app.station
 intentFunctions.set('aog.permissions.handler', require('./intentFunctions/permissionsHandler'));
 intentFunctions.set('app.station.extra.partCount', require('./intentFunctions/app.station.extra.partCount'));
 intentFunctions.set('app.station.extra.distance', require('./intentFunctions/app.station.extra.distance'));
+intentFunctions.set('app.station.extra.repeat', require('./intentFunctions/app.station.extra.repeat'));
 intentFunctions.set('app.parking.search.available', require('./intentFunctions/app.parking.search.available'));
 intentFunctions.set('app.bike.search.available', require('./intentFunctions/app.bike.search.available'));
+intentFunctions.set('app.station.specific', require('./intentFunctions/app.station.specifc'));
 
 intentFunctions.set('Place Handler', (agent) => {
     const conv = agent.conv();

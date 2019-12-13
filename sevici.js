@@ -69,15 +69,21 @@ class Sevici {
 
     }
     async getStation(stationNumber) {
-        let { data:station } = await axios.get(`https://api.jcdecaux.com/vls/v1/stations/${stationNumber}`, {
-            params: {
-                apiKey: this.apiKey,
-                contract: 'seville'
-            }
-        });
-        return station;
+        try {
+            let { data:station } = await axios.get(`https://api.jcdecaux.com/vls/v1/stations/${stationNumber}`, {
+                params: {
+                    apiKey: this.apiKey,
+                    contract: 'seville'
+                }
+            });
+            return station;
+        } catch (e) {
+            console.error(e);
+            return;
+        }
+
     }
 
 }
 
-module.exports = Sevici;
+module.exports = new Sevici(process.env.JCDECAUXAPIKEY);

@@ -1,7 +1,6 @@
 const geolib = require('geolib');
 const _ = require('lodash');
-const Sevici = require("./sevici");
-const seviciService = new Sevici(process.env.JCDECAUXAPIKEY);
+const seviciService = require("./sevici");
 const buildUrl = require('build-url');
 const { BasicCard, Button, Image }  = require("actions-on-google");
 module.exports = {
@@ -38,7 +37,7 @@ module.exports = {
         return words.join('');
     },
     /**
-     * Builds a response string using the provided data
+     * Builds a first response string using the provided data
      * Used when searching for a station
      * @param name
      * @param distance
@@ -46,7 +45,7 @@ module.exports = {
      * @param query
      * @returns {string}
      */
-    buildStationString(name, distance, direction, query) {
+    buildStationSearchString(name, distance, direction, query) {
         let string = 'The ';
         string += query.closest ? 'closest' : 'furthest';
         string += ' station from you ';
@@ -66,18 +65,24 @@ module.exports = {
         string += ` is ${name}, ${distanceString} away to the ${direction}`;
         return string;
     },
-    generateStationCard(station, data) {
+    buildStationDetailsString(station) {
+      let string = humanizeStationName(station.name);
+      string += `has ${station.available_bikes} bikes and ${station.available_bike_stands} spaces to park.`;
+      return string;
+    },
+    generateStationCard(station, data = {}) {
         const humanizedName = module.exports.humanizeStationName(station.name);
-        return new BasicCard({
-            // TODO Make distance and Query optional
-            text: `Distance: **${data.distance} meters**  \n
-                Available bikes: **${station.available_bikes}**  \n
+        let text = '';
+        if (data.distance) text += `Distance: **${data.distance} meters**  \n`;
+
+        text += `Available bikes: **${station.available_bikes}**  \n
                 Available stands: **${station.available_bike_stands}**  \n
                 Total stands: **${station.bike_stands}**  \n
                 Address: **${station.address}**  \n
-                Status: **${station.status}**  \n
-                Query: **${data.originalParams.criteria.join(' ')}**
-                `,
+                Status: **${station.status}**  \n`;
+        if (data.originalParams && data.originalParams.criteria) text += `Query: **${data.originalParams.criteria.join(' ')}**`;
+        return new BasicCard({
+            text,
             // subtitle: 'This is a subtitle',
             title: humanizedName,
             buttons: [

@@ -1,7 +1,6 @@
 const geolib = require('geolib');
-const Sevici = require('../../sevici');
-const seviciService = new Sevici(process.env.JCDECAUXAPIKEY);
-const { generateStationCard, humanizeStationName, getDirection, buildStationString } = require("../../utils");
+const seviciService = require('../../sevici');
+const { generateStationCard, humanizeStationName, getDirection, buildStationSearchString } = require("../../utils");
 const { Permission } = require('actions-on-google');
 module.exports = {
     async stationSearch(conv) {
@@ -19,15 +18,22 @@ module.exports = {
         const query = conv.data.filter;
         query.coordinates = location.coordinates;
         const station = await seviciService.searchStation(query);
-        const distance = geolib.getDistance(location.coordinates, station.position);
-        const direction = getDirection(location.coordinates, station.position);
+        if (station) {
+            const distance = geolib.getDistance(location.coordinates, station.position);
+            const direction = getDirection(location.coordinates, station.position);
 
-        const humanizedName = humanizeStationName(station.name);
+            const humanizedName = humanizeStationName(station.name);
 
-        const textMessage = buildStationString(humanizedName, distance, direction, query);
-        conv.ask(textMessage);
-        conv.ask(generateStationCard(station, { distance, originalParams: conv.data.originalParams }));
-        conv.contexts.set('station', 5, station);
+            const textMessage = buildStationSearchString(humanizedName, distance, direction, query);
+            conv.ask(textMessage);
+            conv.ask(generateStationCard(station, { distance, originalParams: conv.data.originalParams }));
+            conv.contexts.set('station', 5, station);
+        } else {
+            let message = `I'm sorry, I couldn't find any stations matching that criteria`;
+            //TODO Personalise message based on search criteria
+            conv.ask(message)
+        }
+
     },
     /**
      *
