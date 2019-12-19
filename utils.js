@@ -63,7 +63,7 @@ module.exports = {
     buildStationSearchString(name, distance, direction, query) {
         let string = 'The ';
         string += query.closest ? 'closest' : 'furthest';
-        string += ` station from ${query.target} `;
+        string += ` station from ${query.target.name} `;
         if (query.freeBikes) {
             string += 'with free bikes'
         } else if (query.freeBikes === false) {
@@ -134,7 +134,7 @@ module.exports = {
         const context = conv.contexts.get('station');
         if (!context) throw new Error('No station context');
         const oldStation = context.parameters;
-        const updatedStation = await seviciService.getStation(oldStation.number);
+        const updatedStation = await seviciService.getStationByID(oldStation.number);
         conv.contexts.set('station', 5, updatedStation);
         return updatedStation;
 
@@ -178,11 +178,11 @@ module.exports = {
                 west: -6.438637
             }
         }).asPromise();
-        console.log(`Got ${response.json.results.length} geocoding results for`, location);
+        console.log(`Got ${response.json.results.length} geocoding results for`, location['business-name']);
         if (response.json.results.length) {
             return {
                 name: response.json.results[0]['address_components'][0]['short_name'],
-                location: response.json.results[0].geometry.location
+                coordinates: response.json.results[0].geometry.location
             };
         }
     }

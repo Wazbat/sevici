@@ -38,7 +38,7 @@ class Sevici {
         }
 
         const orderedStations = geolib.orderByDistance(
-            query.coordinates,
+            query.target.coordinates,
             stations,
             (point, station) => geolib.getDistance(point, station.position)
         );
@@ -82,7 +82,7 @@ class Sevici {
         }
 
     }
-    async getStation(stationNumber) {
+    async getStationByID(stationNumber) {
         try {
             metrics.seviciCallsSec.mark();
             metrics.seviciCallsTotal.inc();

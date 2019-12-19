@@ -10,17 +10,17 @@ module.exports = {
             // If the user has specified a location
             let target = await getGeoCodePlace(conv.parameters.location);
             if (target) {
-                query.coordinates = target.location;
-                query.target = target.name;
+                query.target = target;
             } else {
                 return conv.ask(`I'm sorry. I couldn't find anywhere in Seville that matched ${conv.parameters.location['business-name']}`);
             }
+        } else if (conv.data.filter.target) {
         } else {
             // Check if user location was provided
             let {location} = conv.device;
             if (!location) return conv.ask(`I'm sorry. I need to access your precise location to be able to search for stations relative to you. Is there anything else I can help you with?`);
-            query.coordinates = location.coordinates;
-            query.target = 'you'
+            query.target = location;
+            query.target.name = 'you'
         }
         /*
         {
@@ -34,8 +34,8 @@ module.exports = {
 
         const station = await seviciService.searchStation(query);
         if (station) {
-            const distance = geolib.getDistance(query.coordinates, station.position);
-            const direction = getDirection(query.coordinates, station.position);
+            const distance = geolib.getDistance(query.target.coordinates, station.position);
+            const direction = getDirection(query.target.coordinates, station.position);
 
             const humanizedName = humanizeStationName(station.name);
 

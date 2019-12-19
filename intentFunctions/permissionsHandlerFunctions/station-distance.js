@@ -1,10 +1,25 @@
-const { updateStationContext, roundDistance, humanizeStationName, getDirection } = require("../../utils");
+const { updateStationContext, roundDistance, humanizeStationName, getDirection, getGeoCodePlace } = require("../../utils");
 const geolib = require('geolib');
 const { Permission, Place, LinkOutSuggestion } = require('actions-on-google');
 const buildUrl = require('build-url');
 module.exports = {
     async stationDistance (conv) {
-        const {location} = conv.device;
+        let query = {};
+        if (conv.parameters.location) {
+            // If the user has specified a location
+            let target = await getGeoCodePlace(conv.parameters.location);
+            if (target) {
+                query.target = target;
+            } else {
+                return conv.ask(`I'm sorry. I couldn't find anywhere in Seville that matched ${conv.parameters.location['business-name']}`);
+            }
+        } else {
+            // Check if user location was provided
+            let {location} = conv.device;
+            if (!location) return conv.ask(`I'm sorry. I need to access your precise location to do this. Is there anything else I can help you with?`);
+            query.target = location;
+            query.target.name = 'you'
+        }
         /*
         {
             coordinates: { latitude: 36.8775256, longitude: -5.4021203 },
@@ -13,10 +28,10 @@ module.exports = {
             city: 'Algodonales'
           }
          */
-        if (!location) return conv.ask(`I'm sorry. I need to access your precise location to do this. Is there anything else I can help you with?`);
+
         const station = await updateStationContext(conv);
-        const distance = geolib.getDistance(location.coordinates, station.position);
-        const response = `${humanizeStationName(station.name)} is ${roundDistance(distance)} away to the ${getDirection(location.coordinates, station.position)}`;
+        const distance = geolib.getDistance(query.target.coordinates, station.position);
+        const response = `${humanizeStationName(station.name)} is ${roundDistance(distance)} away from ${query.target.name} to the ${getDirection(query.target.coordinates, station.position)}`;
         conv.ask(response);
         conv.ask(new LinkOutSuggestion({
             name: 'View on map',

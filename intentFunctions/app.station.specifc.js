@@ -7,7 +7,7 @@ module.exports = async (agent) => {
     let station;
     // TODO Make number optional and also search by name using string similarity and a @sys.any to extract station name
     if (conv.parameters.number) {
-        station = await seviciService.getStation(conv.parameters.number);
+        station = await seviciService.getStationByID(conv.parameters.number);
         if (station) {
             conv.ask(buildStationDetailsString(station));
             conv.ask(generateStationCard(station));
