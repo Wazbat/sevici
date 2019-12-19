@@ -1,6 +1,7 @@
 const { updateStationContext, roundDistance, humanizeStationName, getDirection } = require("../../utils");
 const geolib = require('geolib');
-const { Permission, Place } = require('actions-on-google');
+const { Permission, Place, LinkOutSuggestion } = require('actions-on-google');
+const buildUrl = require('build-url');
 module.exports = {
     async stationDistance (conv) {
         const {location} = conv.device;
@@ -13,11 +14,19 @@ module.exports = {
           }
          */
         if (!location) return conv.ask(`I'm sorry. I need to access your precise location to do this. Is there anything else I can help you with?`);
-        await updateStationContext(conv);
-        const station = conv.contexts.get('station').parameters;
+        const station = await updateStationContext(conv);
         const distance = geolib.getDistance(location.coordinates, station.position);
         const response = `${humanizeStationName(station.name)} is ${roundDistance(distance)} away to the ${getDirection(location.coordinates, station.position)}`;
         conv.ask(response);
+        conv.ask(new LinkOutSuggestion({
+            name: 'View on map',
+            url: buildUrl('https://www.google.com/maps/dir/', {
+                queryParams: {
+                    api: 1,
+                    destination: `${station.position.lat},${station.position.lng}`
+                }
+            })
+        }))
     },
     getStationDistanceRequester(conv) {
         const permissions = ['DEVICE_PRECISE_LOCATION'];
