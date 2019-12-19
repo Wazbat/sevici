@@ -18,7 +18,7 @@ module.exports = {
         } else {
             // Check if user location was provided
             let {location} = conv.device;
-            if (!location) return conv.ask(`I'm sorry. I need to access your precise location to be able to search for stations. Is there anything else I can help you with?`);
+            if (!location) return conv.ask(`I'm sorry. I need to access your precise location to be able to search for stations relative to you. Is there anything else I can help you with?`);
             query.coordinates = location.coordinates;
             query.target = 'you'
         }
@@ -56,7 +56,7 @@ module.exports = {
      * @param filter Filter for station search. Returns the closest station if omitted
      * @param context Optional context to explain why the location is being requested
      */
-    stationSearchRequester(conv, filter = {closest: true}, context = 'To find stations') {
+    stationSearchRequester(conv, context = 'To find stations') {
         const permissions = ['DEVICE_PRECISE_LOCATION'];
         // Location permissions only work for verified users
         // https://developers.google.com/actions/assistant/guest-users
@@ -66,6 +66,5 @@ module.exports = {
         };
         conv.ask(new Permission(options));
         conv.data.event = 'station-search';
-        conv.data.filter = filter;
     }
 };

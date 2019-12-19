@@ -4,14 +4,14 @@ module.exports = async (agent) => {
     console.log('Station search intent');
     const conv = agent.conv();
     if (conv) {
+        conv.data.filter = buildFilter(conv.parameters.criteria);
         if (conv.parameters.location) {
             // If a location is specified
             await stationSearch(conv)
         } else {
-            const filter = buildFilter(conv.parameters.criteria);
             // TODO Remove before once card query removed
             conv.data.originalParams = conv.parameters;
-            stationSearchRequester(conv, filter);
+            stationSearchRequester(conv);
         }
         agent.add(conv)
     } else {
