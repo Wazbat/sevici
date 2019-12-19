@@ -1,5 +1,3 @@
-const geolib = require('geolib');
-
 const { stationSearch } = require("./permissionsHandlerFunctions/station-search");
 const { stationDistance } = require('./permissionsHandlerFunctions/station-distance');
 

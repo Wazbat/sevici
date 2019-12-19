@@ -2,6 +2,14 @@
 # yarn lockfile v1
 
 
+"@google/maps@^1.0.2":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@google/maps/-/maps-1.0.2.tgz#5100e29f3ef7f0384a9210c486dde8c6c8b4c8ea"
+  integrity sha512-iTsvIIgVjIicC+UdLCJOMSBnOmLnmgnOXrjTBUUQr/ffBMfH9GdnlrA9R+vH/kZSFEp9AZUDw0vJ5ES6avfTPQ==
+  dependencies:
+    https-proxy-agent "^3.0.0"
+    uuid ">=2.2.1"
+
 "@opencensus/core@^0.0.8":
   version "0.0.8"
   resolved "https://registry.yarnpkg.com/@opencensus/core/-/core-0.0.8.tgz#df01f200c2d2fbfe14dae129a1a86fb87286db92"
@@ -1230,7 +1238,7 @@ utils-merge@1.0.1:
   resolved "https://registry.yarnpkg.com/utils-merge/-/utils-merge-1.0.1.tgz#9f95710f50a267947b2ccc124741c1028427e713"
   integrity sha1-n5VxD1CiZ5R7LMwSR0HBAoQn5xM=
 
-uuid@^3.2.1:
+uuid@>=2.2.1, uuid@^3.2.1:
   version "3.3.3"
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-3.3.3.tgz#4568f0216e78760ee1dbf3a4d2cf53e224112866"
   integrity sha512-pW0No1RGHgzlpHJO1nsVrHKpOEIxkGg1xB+v0ZmdNH5OAeAwzAVrCnI2/6Mtx+Uys6iaylxa+D3g4j63IKKjSQ==

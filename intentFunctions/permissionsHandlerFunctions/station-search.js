@@ -1,10 +1,27 @@
 const geolib = require('geolib');
 const seviciService = require('../../sevici');
-const { generateStationCard, humanizeStationName, getDirection, buildStationSearchString } = require("../../utils");
+const { generateStationCard, humanizeStationName, getDirection, buildStationSearchString, getGeoCodePlace } = require("../../utils");
 const { Permission } = require('actions-on-google');
 module.exports = {
     async stationSearch(conv) {
-        const {location} = conv.device;
+
+        const query = conv.data.filter;
+        if (conv.parameters.location) {
+            // If the user has specified a location
+            let target = await getGeoCodePlace(conv.parameters.location);
+            if (target) {
+                query.coordinates = target.location;
+                query.target = target.name;
+            } else {
+                return conv.ask(`I'm sorry. I couldn't find anywhere in Seville that matched ${conv.parameters.location['business-name']}`);
+            }
+        } else {
+            // Check if user location was provided
+            let {location} = conv.device;
+            if (!location) return conv.ask(`I'm sorry. I need to access your precise location to be able to search for stations. Is there anything else I can help you with?`);
+            query.coordinates = location.coordinates;
+            query.target = 'you'
+        }
         /*
         {
             coordinates: { latitude: 36.8775256, longitude: -5.4021203 },
@@ -14,13 +31,11 @@ module.exports = {
           }
          */
         const user = conv.user;
-        if (!location) return conv.ask(`I'm sorry. I need to access your precise location to be able to search for stations. Is there anything else I can help you with?`);
-        const query = conv.data.filter;
-        query.coordinates = location.coordinates;
+
         const station = await seviciService.searchStation(query);
         if (station) {
-            const distance = geolib.getDistance(location.coordinates, station.position);
-            const direction = getDirection(location.coordinates, station.position);
+            const distance = geolib.getDistance(query.coordinates, station.position);
+            const direction = getDirection(query.coordinates, station.position);
 
             const humanizedName = humanizeStationName(station.name);
 

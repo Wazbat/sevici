@@ -3,9 +3,13 @@ const geolib = require('geolib');
 const _ = require('lodash');
 const io = require('@pm2/io');
 const metrics = {
-    seviciCalls: io.meter({
+    seviciCallsSec: io.meter({
         name: 'jcdecauxCalls/sec',
         id: 'app/api/realtime/requests'
+    }),
+    seviciCallsTotal: io.counter({
+        name: 'Total jcdecaux calls',
+        id: 'app/api/total/requests'
     }),
 };
 
@@ -14,7 +18,8 @@ class Sevici {
         this.apiKey = key;
     }
     async searchStation(query) {
-        metrics.seviciCalls.mark();
+        metrics.seviciCallsSec.mark();
+        metrics.seviciCallsTotal.inc();
         let { data:stations } = await axios.get('https://api.jcdecaux.com/vls/v1/stations', {
             params: {
                 apiKey: this.apiKey,
@@ -42,7 +47,8 @@ class Sevici {
 
     }
     async searchStations(query) {
-        metrics.seviciCalls.mark();
+        metrics.seviciCallsSec.mark();
+        metrics.seviciCallsTotal.inc();
         let { data:stations } = await axios.get('https://api.jcdecaux.com/vls/v1/stations', {
             params: {
                 apiKey: this.apiKey,
@@ -78,7 +84,8 @@ class Sevici {
     }
     async getStation(stationNumber) {
         try {
-            metrics.seviciCalls.mark();
+            metrics.seviciCallsSec.mark();
+            metrics.seviciCallsTotal.inc();
             let { data:station } = await axios.get(`https://api.jcdecaux.com/vls/v1/stations/${stationNumber}`, {
                 params: {
                     apiKey: this.apiKey,
@@ -88,7 +95,6 @@ class Sevici {
             return station;
         } catch (e) {
             console.error(e);
-            return;
         }
 
     }
