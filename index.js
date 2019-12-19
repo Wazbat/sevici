@@ -3,7 +3,21 @@ const fs = require('fs');
 const express = require('express');
 const https = require('https');
 require('dotenv').config();
-
+const io = require('@pm2/io');
+const metrics = {
+    realtimeSessions: io.metric({
+        name: 'Realtime Sessions',
+        id: 'app/realtime/sessions',
+    }),
+    requests: io.meter({
+        name: 'fulfillmentReqs/sec',
+        id: 'app/fulfillment/realtime/requests'
+    }),
+    errors: io.meter({
+        name: 'fulfillmentErrors/sec',
+        id: 'app/fulfillment/realtime/errors'
+    })
+};
 
 const app = express();
 app.use(express.json());
@@ -33,22 +47,26 @@ intentFunctions.set('Place Handler', (agent) => {
 });
 
 app.post('/chatbot/fulfillment',  (request, response) => {
+    metrics.requests.mark();
     let agent;
     try {
         agent = new WebhookClient({request: request, response: response});
     } catch (e) {
+        metrics.errors.mark();
         console.error(e);
         response.status(400);
         response.send({
             code: 400,
             message: e.message
         });
+
     }
     agent.handleRequest(intentFunctions)
         .then(() => {
             console.log('Handled fulfilment request', agent.intent, agent.query)
         })
         .catch(e => {
+            metrics.errors.mark();
             console.error(e);
             response.status(400);
             response.send({
