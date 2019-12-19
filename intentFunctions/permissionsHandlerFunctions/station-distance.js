@@ -31,7 +31,8 @@ module.exports = {
 
         const station = await updateStationContext(conv);
         const distance = geolib.getDistance(query.target.coordinates, station.position);
-        const response = `${humanizeStationName(station.name)} is ${roundDistance(distance)} away from ${query.target.name} to the ${getDirection(query.target.coordinates, station.position)}`;
+        let response = `${humanizeStationName(station.name)} is ${roundDistance(distance)} away to the ${getDirection(query.target.coordinates, station.position)}`;
+        if (query.target.name !== 'you') response += ` from ${query.target.name}`;
         conv.ask(response);
         conv.ask(new LinkOutSuggestion({
             name: 'View on map',
