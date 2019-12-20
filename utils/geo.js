@@ -39,20 +39,20 @@ module.exports = {
         }
         metrics.geocodingCallsTotal.inc();
         metrics.geocodingCallsSec.mark();
-        let response = await googleMapsClient.geocode({
+        const response = await googleMapsClient.geocode({
             address: query,
             region: 'ES'
         }).asPromise();
         console.log(`Got ${response.json.results.length} geocoding results for: ${query}`);
         if (response.json.results.length) {
-            const response = {
+            const res = {
                 name: response.json.results[0]['address_components'][0]['short_name'],
                 coordinates: response.json.results[0].geometry.location,
                 timestamp: new Date().getTime(),
                 cachedUses: 0
             };
-            geoCache.set(query, response);
-            return response;
+            geoCache.set(query, res);
+            return res;
         }
     }
 };
