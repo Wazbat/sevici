@@ -1,5 +1,5 @@
-const { buildStationDetailsString, generateStationCard } = require("../utils");
-const seviciService = require("../sevici");
+const { buildStationDetailsString, generateStationCard } = require("../utils/general");
+const seviciService = require("../utils/sevici");
 module.exports = async (agent) => {
 
     // TODO Consider replacing conv with agent to allow for multiple platforms

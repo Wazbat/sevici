@@ -1,6 +1,7 @@
 const geolib = require('geolib');
-const seviciService = require('../../sevici');
-const { generateStationCard, humanizeStationName, getDirection, buildStationSearchString, getGeoCodePlace } = require("../../utils");
+const seviciService = require('../../utils/sevici');
+const { getGeoCodePlace } = require("../../utils/geo");
+const { generateStationCard, humanizeStationName, getDirection, buildStationSearchString } = require("../../utils/general");
 const { Permission } = require('actions-on-google');
 module.exports = {
     async stationSearch(conv) {

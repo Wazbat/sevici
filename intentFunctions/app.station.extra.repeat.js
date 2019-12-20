@@ -1,4 +1,4 @@
-const { updateStationContext, generateStationCard, buildStationDetailsString } = require("../utils");
+const { updateStationContext, generateStationCard, buildStationDetailsString } = require("../utils/general");
 
 module.exports = async (agent) => {
     const conv = agent.conv();

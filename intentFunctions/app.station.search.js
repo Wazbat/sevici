@@ -1,5 +1,5 @@
 const { stationSearchRequester, stationSearch } = require("./permissionsHandlerFunctions/station-search");
-const { buildFilter } = require("../utils");
+const { buildFilter } = require("../utils/general");
 module.exports = async (agent) => {
     console.log('Station search intent');
     const conv = agent.conv();

@@ -1,4 +1,4 @@
-const { updateStationContext } = require("../../utils");
+const { updateStationContext } = require("../../utils/general");
 module.exports = {
     async getPartCount (conv) {
         const updatedStation = await updateStationContext(conv);

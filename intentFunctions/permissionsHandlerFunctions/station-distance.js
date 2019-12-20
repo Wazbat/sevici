@@ -1,7 +1,8 @@
-const { updateStationContext, roundDistance, humanizeStationName, getDirection, getGeoCodePlace } = require("../../utils");
+const { updateStationContext, roundDistance, humanizeStationName, getDirection } = require("../../utils/general");
 const geolib = require('geolib');
 const { Permission, Place, LinkOutSuggestion } = require('actions-on-google');
 const buildUrl = require('build-url');
+const {getGeoCodePlace} = require("../../utils/geo");
 module.exports = {
     async stationDistance (conv) {
         let query = {};
