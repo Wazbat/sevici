@@ -42,6 +42,14 @@ module.exports = {
         metrics.geocodingCallsSec.mark();
         const response = await googleMapsClient.geocode({
             address: query,
+            language: 'es',
+            // Seville for biasing
+            bounds: {
+                north: 37.673415,
+                south: 37.077416,
+                east: -5.608832,
+                west: -6.438637
+            },
             region: 'ES'
         }).asPromise();
         console.log(`Got ${response.json.results.length} geocoding results for: ${query}`);
