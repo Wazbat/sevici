@@ -27,6 +27,7 @@ module.exports = {
     async getGeoCodePlace(location) {
         let query =  location['business-name'] || '';
         query += location['street-address'] || '';
+        query = query.toLowerCase();
         // Return cached query if it's less than a set time ago
         const cached = geoCache.get(query);
         if (cached && moment(cached.timestamp).isAfter(moment().subtract(5, 'days'))) {
