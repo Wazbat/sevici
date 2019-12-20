@@ -35,7 +35,7 @@ module.exports = {
             metrics.cachedCallsTotal.inc();
             cached.cachedUses++;
             geoCache.set(query, cached);
-            console.log(`Returned cached result for ${query}. Uses so far: ${cached.cachedUses}`);
+            console.log(`Returned cached result for "${query}". Cached uses: ${cached.cachedUses}`);
             return cached;
         }
         metrics.geocodingCallsTotal.inc();
