@@ -19,7 +19,7 @@ module.exports = {
             let {location} = conv.device;
             if (!location) return conv.ask(`I'm sorry. I need to access your precise location to do this. Is there anything else I can help you with?`);
             query.target = location;
-            query.target.name = 'you'
+            query.target.user = true;
         }
         /*
         {
@@ -33,7 +33,7 @@ module.exports = {
         const station = await updateStationContext(conv);
         const distance = geolib.getDistance(query.target.coordinates, station.position);
         let response = `${humanizeStationName(station.name)} is ${roundDistance(distance)} away to the ${getDirection(query.target.coordinates, station.position)}`;
-        if (query.target.name !== 'you') response += ` from ${query.target.name}`;
+        if (query.target.name) response += ` from ${query.target.name}`;
         conv.ask(response);
         conv.ask(new LinkOutSuggestion({
             name: 'View on map',

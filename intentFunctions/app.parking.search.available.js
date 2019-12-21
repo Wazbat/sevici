@@ -1,6 +1,5 @@
 const { stationSearchRequester, stationSearch } = require("./permissionsHandlerFunctions/station-search");
 module.exports = async (agent) => {
-    console.log('Station search intent');
     const conv = agent.conv();
     if (conv) {
         conv.data.filter = { closest: true, freeParking: true };

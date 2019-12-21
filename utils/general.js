@@ -49,7 +49,7 @@ module.exports = {
     buildStationSearchString(name, distance, direction, query) {
         let string = 'The ';
         string += query.closest ? 'closest' : 'furthest';
-        string += ` station from ${query.target.name} `;
+        string += ` station from ${query.target.name || 'you'} `;
         if (query.freeBikes) {
             string += 'with free bikes'
         } else if (query.freeBikes === false) {

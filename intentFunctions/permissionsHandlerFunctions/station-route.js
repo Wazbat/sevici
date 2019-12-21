@@ -16,14 +16,12 @@ module.exports = {
                 return conv.ask(`I'm sorry. I couldn't find anywhere in Seville that matched ${conv.parameters.location['business-name']}`);
             }
         } else if (conv.data.filter.target) {
-            console.warn('Had a target?')
-            // TODO Find out what this was for?
         } else {
             // Check if user location was provided
             let {location} = conv.device;
             if (!location) return conv.ask(`I'm sorry. I need to access your precise location to be able to search for stations relative to you. Is there anything else I can help you with?`);
             query.target = location;
-            query.target.user = true;
+            query.target.name = 'you'
         }
         /*
         {
