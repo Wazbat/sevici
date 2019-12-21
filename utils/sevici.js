@@ -25,7 +25,7 @@ class Sevici {
      * closest?: boolean,
      * freeBikes?: boolean,
      * freeParking?: boolean}}
-     * @returns {Promise<any>}
+     * @returns {Promise<>}
      */
     async searchStation(query) {
         if (!query.target || !query.target.coordinates) throw new TypeError('Missing query target');

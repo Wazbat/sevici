@@ -3,6 +3,7 @@ const googleMapsClient = require('@google/maps').createClient({
     key: process.env.STATICMAPAPIKEY,
     Promise: Promise
 });
+const seviciService = require('./sevici');
 const io = require('@pm2/io');
 const metrics = {
     geocodingCallsSec: io.meter({
@@ -23,6 +24,7 @@ const metrics = {
     }),
 };
 const geoCache = new Map();
+const directionsCache = new Map();
 module.exports = {
     async getGeoCodePlace(location) {
         let query =  location['business-name'] || '';
@@ -63,5 +65,47 @@ module.exports = {
             geoCache.set(query, res);
             return res;
         }
+    },
+
+    async getDirections(start, end) {
+        const departureStation = await seviciService.searchStation({
+            target: {
+                coordinates: start
+            },
+            freeBikes: true
+        });
+        const destinationStation = await seviciService.searchStation({
+            target: {
+                coordinates: end
+            },
+            freeParking: true
+        });
+        let query = {
+            origins: [departureStation.position],
+            destinations: [destinationStation.position],
+            mode: 'bicycling',
+            units: 'metric',
+            timeout: 1500
+        };
+        const key = JSON.stringify({start, end});
+        const cached = geoCache.get(key);
+        if (cached) {
+            cached.cachedUses++;
+            geoCache.set(key, cached);
+            console.log('Returning cached directions');
+            return cached;
+        }
+        const result = await googleMapsClient.distanceMatrix(query).asPromise();
+        console.log(result);
+        const response = {
+            departureStation,
+            destinationStation,
+            result,
+            timestamp: new Date().getTime(),
+            cachedUses: 0
+        };
+        geoCache.set(key, response);
+        return response;
+
     }
 };
