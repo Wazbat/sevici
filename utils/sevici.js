@@ -17,7 +17,18 @@ class Sevici {
     constructor(key) {
         this.apiKey = key;
     }
+
+    /**
+     * Takes an input search query and returns a single station object that matches the query
+     * @param query {{
+     * target: {coordinates: GeoLibInputCoordinates},
+     * closest?: boolean,
+     * freeBikes?: boolean,
+     * freeParking?: boolean}}
+     * @returns {Promise<any>}
+     */
     async searchStation(query) {
+        if (!query.target || !query.target.coordinates) throw new TypeError('Missing query target');
         metrics.seviciCallsSec.mark();
         metrics.seviciCallsTotal.inc();
         let { data:stations } = await axios.get('https://api.jcdecaux.com/vls/v1/stations', {
@@ -42,8 +53,8 @@ class Sevici {
             stations,
             (point, station) => geolib.getDistance(point, station.position)
         );
-        if (query.closest) return orderedStations[0];
-        return orderedStations[orderedStations.length - 1];
+        if (query.closest === false) return orderedStations[orderedStations.length - 1];
+        return  orderedStations[0];
 
     }
     async searchStations(query) {
