@@ -56,7 +56,6 @@ module.exports = {
     /**
      *
      * @param conv Conv object
-     * @param filter Filter for station search. Returns the closest station if omitted
      * @param context Optional context to explain why the location is being requested
      */
     stationSearchRequester(conv, context = 'To find stations') {
