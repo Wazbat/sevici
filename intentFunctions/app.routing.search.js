@@ -1,14 +1,12 @@
-const { stationSearchRequester, stationSearch } = require("./permissionsHandlerFunctions/station-search");
+const { stationRouteRequester, routeSearch } = require("./permissionsHandlerFunctions/station-route");
 module.exports = async (agent) => {
-    console.log('Station search intent');
     const conv = agent.conv();
     if (conv) {
-        conv.data.filter = { closest: true, freeParking: true };
-        if (conv.parameters.criteria.includes('furthest')) conv.data.filter.closest = false;
-        if (conv.parameters.location) {
-            await stationSearch(conv);
+        if (conv.parameters.departure) {
+            // If the user provided a departure location, search and handle that
+            await routeSearch(conv);
         } else {
-            stationSearchRequester(conv, 'To search for somewhere to park');
+            stationRouteRequester(conv, 'To find a route from you');
         }
         conv.data.originalParams = conv.parameters;
 

@@ -67,9 +67,21 @@ module.exports = {
         return string;
     },
     buildStationDetailsString(station) {
-      let string = module.exports.humanizeStationName(station.name);
-      string += ` has ${station.available_bikes} bikes available and ${station.available_bike_stands} free spaces to park`;
-      return string;
+        let string = module.exports.humanizeStationName(station.name);
+        string += ` has ${station.available_bikes} bikes available and ${station.available_bike_stands} free spaces to park`;
+        return string;
+    },
+    buildStationRouteString(route, query) {
+        let string = `The best way to get `;
+        // TODO Extract name properly
+        if (!query.departure.user) string += `from ${query.departure.name}`;
+        string += `to ${query.destination.name} is by collecting one of ${route.departureStation.available_bikes} bikes ` +
+            `from ${module.exports.humanizeStationName(route.departureStation.name)}, then cycling `;
+        if (route.matrix) console.log(`Parse route matrix. Travel time here`);
+        string += `to ${module.exports.humanizeStationName(route.destinationStation)} `;
+        // TODO Add text that says things like "Which is x meters away from query.destination
+        string += `and parking at one of the ${route.destinationStation.available_bike_stands} available spots`;
+        return string;
     },
     generateStationCard(station, data = {}) {
         const humanizedName = module.exports.humanizeStationName(station.name);

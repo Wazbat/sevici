@@ -57,6 +57,7 @@ module.exports = {
         console.log(`Got ${response.json.results.length} geocoding results for: ${query}`);
         if (response.json.results.length) {
             const res = {
+                // TODO Extract name properly
                 name: response.json.results[0]['address_components'][0]['short_name'],
                 coordinates: response.json.results[0].geometry.location,
                 timestamp: new Date().getTime(),
@@ -67,7 +68,7 @@ module.exports = {
         }
     },
 
-    async getDirections(start, end) {
+    async getDirections(start, end, travelTime = false) {
         const departureStation = await seviciService.searchStation({
             target: {
                 coordinates: start
@@ -95,12 +96,14 @@ module.exports = {
             console.log('Returning cached directions');
             return cached;
         }
-        const result = await googleMapsClient.distanceMatrix(query).asPromise();
-        console.log(result);
+        let matrix;
+        if (travelTime) {
+            matrix = await googleMapsClient.distanceMatrix(query).asPromise();
+        }
         const response = {
             departureStation,
             destinationStation,
-            result,
+            matrix,
             timestamp: new Date().getTime(),
             cachedUses: 0
         };
