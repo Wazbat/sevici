@@ -4,6 +4,7 @@ const googleMapsClient = require('@google/maps').createClient({
     Promise: Promise
 });
 const seviciService = require('./sevici');
+const geolib = require('geolib');
 const io = require('@pm2/io');
 const metrics = {
     geocodingCallsSec: io.meter({
@@ -102,7 +103,9 @@ module.exports = {
         }
         const response = {
             departureStation,
+            departureStationDistance: geolib.getDistance(start, departureStation.position),
             destinationStation,
+            destinationStationDistance: geolib.getDistance(end, destinationStation.position),
             matrix,
             timestamp: new Date().getTime(),
             cachedUses: 0
