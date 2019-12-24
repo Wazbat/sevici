@@ -78,7 +78,7 @@ module.exports = {
         string += `to ${query.destination.name} is by collecting one of ${route.departureStation.available_bikes} bikes ` +
             `from ${module.exports.humanizeStationName(route.departureStation.name)}, then cycling `;
         if (route.matrix) console.log(`Parse route matrix. Travel time here`);
-        string += `to ${module.exports.humanizeStationName(route.destinationStation)} `;
+        string += `to ${module.exports.humanizeStationName(route.destinationStation.name)} `;
         // TODO Add text that says things like "Which is x meters away from query.destination
         string += `and parking at one of the ${route.destinationStation.available_bike_stands} available spots`;
         return string;
@@ -156,7 +156,8 @@ module.exports = {
      * @returns {string|void}
      */
     humanizeStationName(name) {
-        let humanizedName = name.replace(/\d+_/i, '');
+        if (name == null) throw new TypeError('Provided name to humanize is undefined');
+        let humanizedName = name.toString().replace(/\d+_/i, '');
         humanizedName = _.startCase(_.toLower(humanizedName));
         return humanizedName;
     }
