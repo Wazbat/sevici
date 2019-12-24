@@ -23,16 +23,13 @@ module.exports = {
         }
         query.destination = await getGeoCodePlace(conv.parameters.destination);
         if (!query.destination) return conv.ask(`I'm sorry, I couldn't find anywhere in Seville that matched ${conv.parameters.destination['business-name']}`);
-
+        console.log('Departure', query.departure);
+        console.log('Departure', query.destination);
         const route = await getDirections(query.departure.coordinates, query.destination.coordinates, false);
         if (route) {
 
             // TODO Build result from these places
             console.log(route);
-            const distance = geolib.getDistance(query.target.coordinates, station.position);
-            const direction = getDirection(query.target.coordinates, station.position);
-
-            // const humanizedName = humanizeStationName(station.name);
 
             const textMessage = buildStationRouteString(route, query);
             conv.ask(textMessage);
