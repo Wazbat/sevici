@@ -2,13 +2,13 @@ const { stationRouteRequester, routeSearch } = require("./permissionsHandlerFunc
 module.exports = async (agent) => {
     const conv = agent.conv();
     if (conv) {
+        conv.data.originalParams = conv.parameters;
         if (conv.parameters.departure) {
             // If the user provided a departure location, search and handle that
             await routeSearch(conv);
         } else {
             stationRouteRequester(conv, 'To find a route from you');
         }
-        conv.data.originalParams = conv.parameters;
 
         agent.add(conv)
 

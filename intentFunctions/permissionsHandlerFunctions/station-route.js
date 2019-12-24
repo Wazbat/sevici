@@ -6,13 +6,13 @@ const { Permission } = require('actions-on-google');
 module.exports = {
     async routeSearch(conv) {
         const query = {};
-        if (conv.parameters.departure) {
+        if (conv.data.originalParams.departure) {
             // If the user has specified a departure that isn't them
-            let target = await getGeoCodePlace(conv.parameters.departure);
+            let target = await getGeoCodePlace(conv.data.originalParams.departure);
             if (target) {
                 query.departure = target;
             } else {
-                return conv.ask(`I'm sorry. I couldn't find anywhere in Seville that matched ${conv.parameters.departure['business-name']}`);
+                return conv.ask(`I'm sorry. I couldn't find anywhere in Seville that matched ${conv.data.originalParams.departure['business-name']}`);
             }
         } else {
             // Check if user location was provided
@@ -21,15 +21,15 @@ module.exports = {
             query.departure = location;
             query.departure.user = true;
         }
-        query.destination = await getGeoCodePlace(conv.parameters.destination);
-        if (!query.destination) return conv.ask(`I'm sorry, I couldn't find anywhere in Seville that matched ${conv.parameters.destination['business-name']}`);
+        query.destination = await getGeoCodePlace(conv.data.originalParams.destination);
+        if (!query.destination) return conv.ask(`I'm sorry, I couldn't find anywhere in Seville that matched ${conv.data.originalParams.destination['business-name']}`);
         console.log('Departure', query.departure);
-        console.log('Departure', query.destination);
+        console.log('Destination', query.destination);
         const route = await getDirections(query.departure.coordinates, query.destination.coordinates, false);
         if (route) {
 
             // TODO Build result from these places
-            console.log(route);
+            // console.log(route);
 
             const textMessage = buildStationRouteString(route, query);
             conv.ask(textMessage);
