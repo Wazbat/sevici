@@ -30,7 +30,7 @@ intentFunctions.set('app.station.extra.repeat', require('./intentFunctions/app.s
 intentFunctions.set('app.parking.search.available', require('./intentFunctions/app.parking.search.available'));
 intentFunctions.set('app.bike.search.available', require('./intentFunctions/app.bike.search.available'));
 intentFunctions.set('app.station.specific', require('./intentFunctions/app.station.specifc'));
-
+intentFunctions.set('app.routing.search', require('./intentFunctions/app.routing.search'));
 intentFunctions.set('Place Handler', (agent) => {
     const conv = agent.conv();
     if (conv) {
