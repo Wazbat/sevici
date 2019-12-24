@@ -31,6 +31,10 @@ module.exports = {
         let query =  location['business-name'] || '';
         query += location['street-address'] || '';
         query = query.toLowerCase();
+        if (!query) {
+            console.error('Empty location', location);
+            return;
+        }
         // Return cached query if it's less than a set time ago
         const cached = geoCache.get(query);
         if (cached && moment(cached.timestamp).isAfter(moment().subtract(5, 'days'))) {
@@ -82,13 +86,7 @@ module.exports = {
             },
             freeParking: true
         });
-        let query = {
-            origins: [departureStation.position],
-            destinations: [destinationStation.position],
-            mode: 'bicycling',
-            units: 'metric',
-            timeout: 1500
-        };
+
         const key = JSON.stringify({start, end});
         const cached = geoCache.get(key);
         if (cached) {
@@ -97,9 +95,21 @@ module.exports = {
             console.log('Returning cached directions');
             return cached;
         }
+        const query = {
+            origins: [departureStation.position],
+            destinations: [destinationStation.position],
+            mode: 'bicycling',
+            units: 'metric',
+            timeout: 1500
+        };
         let matrix;
         if (travelTime) {
-            matrix = await googleMapsClient.distanceMatrix(query).asPromise();
+            const res = await googleMapsClient.distanceMatrix(query).asPromise();
+            console.log(res.json.rows);
+            matrix = {
+                distance: res.json.rows[0].elements[0].distance.text,
+                duration: res.json.rows[0].elements[0].duration.text,
+            }
         }
         const response = {
             departureStation,
