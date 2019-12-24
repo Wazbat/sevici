@@ -8,7 +8,7 @@ module.exports = {
         const query = {};
         if (conv.parameters.departure) {
             // If the user has specified a departure that isn't them
-            let target = await getGeoCodePlace(conv.parameters.location);
+            let target = await getGeoCodePlace(conv.parameters.departure);
             if (target) {
                 query.departure = target;
             } else {
