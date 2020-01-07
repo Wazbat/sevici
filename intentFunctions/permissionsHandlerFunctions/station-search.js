@@ -11,7 +11,7 @@ module.exports = {
             // If the user has specified a location
             const target = await getGeoCodePlace(conv.parameters.location);
             if (target.error) {
-                return conv.ask(getErrorMessage(target.error));
+                return conv.ask(getErrorMessage(target.error, conv.body.queryResult.languageCode));
             } else {
                 query.target = target;
             }
@@ -45,10 +45,7 @@ module.exports = {
             conv.ask(generateStationCard(station, { distance, originalParams: conv.data.originalParams }));
             conv.contexts.set('station', 5, station);
         } else {
-            conv.ask(getErrorMessage('NO_STATION_RESULTS'));
-            let message = `I'm sorry, I couldn't find any stations matching that criteria`;
-            //TODO Personalise message based on search criteria
-            conv.ask(message)
+            conv.ask(getErrorMessage('NO_STATION_RESULTS', conv.body.queryResult.languageCode));
         }
 
     },

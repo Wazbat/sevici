@@ -12,7 +12,7 @@ module.exports = {
             // If the user has specified a departure that isn't them
             const target = await getGeoCodePlace(conv.data.originalParams.departure);
             if (target.error) {
-                return conv.ask(getErrorMessage(target.error));
+                return conv.ask(getErrorMessage(target.error, conv.body.queryResult.languageCode));
             } else {
                 query.target = target;
             }
@@ -25,7 +25,7 @@ module.exports = {
             query.departure.user = true;
         }
         query.destination = await getGeoCodePlace(conv.data.originalParams.destination);
-        if (query.destination.error) return conv.ask(getErrorMessage(query.destination.error));
+        if (query.destination.error) return conv.ask(getErrorMessage(query.destination.error, conv.body.queryResult.languageCode));
         const travelTime = await configCatClient.getValueAsync('distancematrixroute',  false);
         const route = await getDirections(query.departure.coordinates, query.destination.coordinates, travelTime);
         if (!route.error) {
@@ -38,7 +38,7 @@ module.exports = {
                 destinationStation: route.destinationStation
             });
         } else {
-            conv.ask(getErrorMessage(route.error));
+            conv.ask(getErrorMessage(route.error, conv.body.queryResult.languageCode));
         }
 
     },
