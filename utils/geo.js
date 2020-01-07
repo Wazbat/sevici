@@ -37,7 +37,7 @@ module.exports = {
         }
         // Return cached query if it's less than a set time ago
         const cached = geoCache.get(query);
-        if (cached && moment(cached.timestamp).isAfter(moment().subtract(5, 'days'))) {
+        if (cached && moment(cached.timestamp).isAfter(moment().subtract(20, 'days'))) {
             metrics.cachedCallsSec.mark();
             metrics.cachedCallsTotal.inc();
             cached.cachedUses++;
@@ -88,27 +88,32 @@ module.exports = {
         });
 
         const key = JSON.stringify({start, end});
-        const cached = geoCache.get(key);
+        const cached = directionsCache.get(key);
         if (cached) {
             cached.cachedUses++;
-            geoCache.set(key, cached);
+            directionsCache.set(key, cached);
             console.log('Returning cached directions');
             return cached;
         }
-        const query = {
-            origins: [departureStation.position],
-            destinations: [destinationStation.position],
-            mode: 'bicycling',
-            units: 'metric',
-            timeout: 1500
-        };
         let matrix;
         if (travelTime) {
-            const res = await googleMapsClient.distanceMatrix(query).asPromise();
-            console.log(res.json.rows);
-            matrix = {
-                distance: res.json.rows[0].elements[0].distance.text,
-                duration: res.json.rows[0].elements[0].duration.text,
+            const query = {
+                origins: [departureStation.position],
+                destinations: [destinationStation.position],
+                mode: 'bicycling',
+                units: 'metric',
+                // TODO Support multiple languages
+                language: 'en',
+                timeout: 1500
+            };
+            const response = await googleMapsClient.distanceMatrix(query).asPromise();
+            const result = response.json.rows[0];
+            console.log('Distance matrix', result);
+            if (result.status !== 'OK') {
+                matrix = {
+                    distance: response.json.rows[0].elements[0].distance.text,
+                    duration: response.json.rows[0].elements[0].duration.text,
+                }
             }
         }
         const response = {
@@ -120,7 +125,7 @@ module.exports = {
             timestamp: new Date().getTime(),
             cachedUses: 0
         };
-        geoCache.set(key, response);
+        directionsCache.set(key, response);
         return response;
 
     }

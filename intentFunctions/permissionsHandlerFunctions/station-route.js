@@ -1,7 +1,7 @@
 const geolib = require('geolib');
 const seviciService = require('../../utils/sevici');
 const { getGeoCodePlace, getDirections } = require("../../utils/geo");
-const { generateStationCard, humanizeStationName, getDirection, buildStationRouteString } = require("../../utils/general");
+const { buildStationRouteString } = require("../../utils/general");
 const { Permission } = require('actions-on-google');
 module.exports = {
     async routeSearch(conv) {
@@ -23,9 +23,7 @@ module.exports = {
         }
         query.destination = await getGeoCodePlace(conv.data.originalParams.destination);
         if (!query.destination) return conv.ask(`I'm sorry, I couldn't find anywhere in Seville that matched ${conv.data.originalParams.destination['business-name']}`);
-        console.log('Departure', query.departure);
-        console.log('Destination', query.destination);
-        const route = await getDirections(query.departure.coordinates, query.destination.coordinates, false);
+        const route = await getDirections(query.departure.coordinates, query.destination.coordinates);
         if (route) {
 
             // TODO Build result from these places

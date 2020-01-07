@@ -1,3 +1,5 @@
+const { Suggestions } = require('actions-on-google');
+
 const { buildStationDetailsString, generateStationCard } = require("../utils/general");
 const seviciService = require("../utils/sevici");
 module.exports = async (agent) => {
@@ -11,6 +13,7 @@ module.exports = async (agent) => {
         if (station) {
             conv.ask(buildStationDetailsString(station));
             conv.ask(generateStationCard(station));
+            conv.ask(new Suggestions('Distance from here'));
             conv.contexts.set('station', 5, station);
         } else {
             conv.ask(`I'm sorry, I couldn't find any stations with the ID ${conv.parameters.number}`)

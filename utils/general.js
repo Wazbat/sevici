@@ -77,7 +77,7 @@ module.exports = {
         if (!query.departure.user) string += `from ${query.departure.name}`;
         string += `to ${query.destination.name} is by collecting one of ${route.departureStation.available_bikes} bikes ` +
             `from ${module.exports.humanizeStationName(route.departureStation.name)}, ${module.exports.roundDistance(route.departureStationDistance)} away, then cycling `;
-        if (route.matrix) console.log(route.matrix);
+        if (route.matrix) string += `${route.matrix.duration} `;
         string += `to ${module.exports.humanizeStationName(route.destinationStation.name)} `;
         // TODO Add text that says things like "Which is x meters away from query.destination
         string += `and parking at one of the ${route.destinationStation.available_bike_stands} available spots, ` +
@@ -136,7 +136,6 @@ module.exports = {
         const updatedStation = await seviciService.getStationByID(oldStation.number);
         conv.contexts.set('station', 5, updatedStation);
         return updatedStation;
-
     },
     /**
      * Takes a number, the distance in meters. Rounds to kilometers if greater than 999.
