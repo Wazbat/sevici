@@ -3,6 +3,10 @@
     "en": "I'm sorry, that feature isn't enabled at the moment",
     "es": "Perdona. Esa funcion no esta disponible en este momento"
   },
+  "FEATURE_NOT_ENABLED_GEOCODING": {
+    "en": "I'm sorry, searching for locations other than your own isn't enabled at the moment",
+    "es": "Perdona, pero actualmente no se puede buscar relativo a otros ubicaciones"
+  },
   "NO_RESULTS_GEO": {
     "en": "I'm sorry. I couldn't find anywhere in Seville that matched",
     "es": "No pude encontrar ningun sitio en Sevilla que coincide"

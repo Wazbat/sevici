@@ -126,12 +126,12 @@ module.exports = {
     },
     generateRouteCard(route) {
         let text = `Departure: **${module.exports.humanizeStationName(route.departureStation.name)}**  \n
-            Available bikes: **${route.departureStation.available_bikes}** \n
+            Available bikes: **${route.departureStation.available_bikes}**  \n
             Destination: **${module.exports.humanizeStationName(route.destinationStation.name)}**  \n
             Available stands: **${route.departureStation.available_bike_stands}** \n`;
         return new BasicCard({
             text,
-            // subtitle: 'This is a subtitle',
+            subtitle: route.matrix ? route.matrix.duration : null,
             title: 'Route',
             buttons: [
                 new Button({

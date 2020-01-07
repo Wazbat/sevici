@@ -31,7 +31,7 @@ const directionsCache = new Map();
 module.exports = {
     async getGeoCodePlace(location) {
         const allowed = await configCatClient.getValueAsync('geocodingglobal',  false);
-        if (!allowed) return {error: 'FEATURE_NOT_ENABLED'};
+        if (!allowed) return {error: 'FEATURE_NOT_ENABLED_GEOCODING'};
         let query =  location['business-name'] || '';
         query += location['street-address'] || '';
         query = query.toLowerCase();
