@@ -1,7 +1,7 @@
 const geolib = require('geolib');
 const seviciService = require('../../utils/sevici');
 const { getGeoCodePlace, getDirections } = require("../../utils/geo");
-const { buildStationRouteString } = require("../../utils/general");
+const { buildStationRouteString, generateRouteCard } = require("../../utils/general");
 const { Permission } = require('actions-on-google');
 module.exports = {
     async routeSearch(conv) {
@@ -26,13 +26,14 @@ module.exports = {
         const route = await getDirections(query.departure.coordinates, query.destination.coordinates);
         if (route) {
 
-            // TODO Build result from these places
-            // console.log(route);
-
             const textMessage = buildStationRouteString(route, query);
             conv.ask(textMessage);
-            // conv.ask(generateStationCard(station, { distance, originalParams: conv.data.originalParams }));
-            conv.contexts.set('station', 5, route.destinationStation);
+            conv.ask(generateRouteCard(route));
+            const route = {
+                departureStation: route.departureStation,
+                destinationStation: route.destinationStation
+            };
+            conv.contexts.set('route', 5, route);
         } else {
             let message = `I'm sorry, I couldn't find a route for some reason`;
             //TODO Personalise message based on search criteria

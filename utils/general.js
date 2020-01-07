@@ -102,10 +102,10 @@ module.exports = {
             buttons: [
                 new Button({
                     title: 'View on map',
-                    url: buildUrl('https://www.google.com/maps/dir/', {
+                    url: buildUrl('https://www.google.com/maps/search/', {
                         queryParams: {
                             api: 1,
-                            destination: `${station.position.lat},${station.position.lng}`
+                            query: `${station.position.lat},${station.position.lng}`
                         }
                     })
                 })
@@ -123,8 +123,44 @@ module.exports = {
             display: 'CROPPED',
         })
     },
+    generateRouteCard(route) {
+        let text = `Departure: **${module.exports.humanizeStationName(route.departureStation.name)}**  \n
+            Available bikes: **${route.departureStation.available_bikes}** \n
+            Destination: **${module.exports.humanizeStationName(route.destinationStation.name)}**  \n
+            Available stands: **${route.departureStation.available_bike_stands}** \n`;
+        return new BasicCard({
+            text,
+            // subtitle: 'This is a subtitle',
+            title: 'Route',
+            buttons: [
+                new Button({
+                    title: 'View route',
+                    url: buildUrl('https://www.google.com/maps/dir/', {
+                        queryParams: {
+                            api: 1,
+                            origin: `${route.departureStation.position.lat},${route.departureStation.position.lng}`,
+                            destination: `${route.destinationStation.position.lat},${route.destinationStation.position.lng}`,
+                            travelmode: 'bicycling'
+                        }
+                    })
+                })
+            ],
+            image: new Image({
+                url: buildUrl('https://maps.googleapis.com/maps/api/staticmap', {
+                    queryParams: {
+                        markers: `${route.departureStation.position.lat},${route.departureStation.position.lng}|` +
+                            `${route.destinationStation.position.lat},${route.destinationStation.position.lng}`,
+                        size: `700x300`,
+                        key: process.env.STATICMAPAPIKEY
+                    }
+                }),
+                alt: 'route',
+            }),
+            display: 'CROPPED',
+        })
+    },
     /**
-     * Update the conv object context with the station context of the requested station. To be called in any function that already has the station context.
+     * Update the conv object context with the station context of the requested station. To be called in any function that already has the station context and doesn't change it.
      * Returns the updated station
      * @param conv
      * @returns {Promise<*>}
@@ -136,6 +172,28 @@ module.exports = {
         const updatedStation = await seviciService.getStationByID(oldStation.number);
         conv.contexts.set('station', 5, updatedStation);
         return updatedStation;
+    },
+    /**
+     * Update the route object context with the updated versions of the previous stations To be called in any function that already has the rotue context and doesn't change it.
+     * Returns the updated station
+     * @param conv
+     * @returns {Promise<*>}
+     */
+    // TODO Implement route extras
+    async updateRouteContext(conv) {
+        const context = conv.contexts.get('route');
+        if (!context) throw new Error('No route context');
+        const oldRoute = context.parameters;
+        const [departureStation, destinationStation] = await Promise.all([
+            seviciService.getStationByID(oldRoute.departureStation.number),
+            seviciService.getStationByID(oldRoute.destinationStation.number)
+        ]);
+        const newRoute = {
+            departureStation,
+            destinationStation
+        };
+        conv.contexts.set('route', 5, newRoute);
+        return newRoute;
     },
     /**
      * Takes a number, the distance in meters. Rounds to kilometers if greater than 999.
@@ -152,8 +210,8 @@ module.exports = {
     },
     /**
      * Convert sevici station names into a human readable format
-     * @param name
-     * @returns {string|void}
+     * @param name {string}
+     * @returns {string}
      */
     humanizeStationName(name) {
         if (name == null) throw new TypeError('Provided name to humanize is undefined');

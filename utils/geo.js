@@ -74,18 +74,20 @@ module.exports = {
     },
 
     async getDirections(start, end, travelTime = false) {
-        const departureStation = await seviciService.searchStation({
-            target: {
-                coordinates: start
-            },
-            freeBikes: true
-        });
-        const destinationStation = await seviciService.searchStation({
-            target: {
-                coordinates: end
-            },
-            freeParking: true
-        });
+        const [departureStation, destinationStation] = await Promise.all([
+            seviciService.searchStation({
+                target: {
+                    coordinates: start
+                },
+                freeBikes: true
+            }),
+            seviciService.searchStation({
+                target: {
+                    coordinates: end
+                },
+                freeParking: true
+            })
+        ])
 
         const key = JSON.stringify({start, end});
         const cached = directionsCache.get(key);
