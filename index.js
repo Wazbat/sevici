@@ -3,6 +3,8 @@ const fs = require('fs');
 const express = require('express');
 const https = require('https');
 require('dotenv').config();
+const Sentry = require('@sentry/node');
+Sentry.init({ dsn: 'https://80f5fd68f21b426b94373d99688f6c99@sentry.io/1873615' });
 const io = require('@pm2/io');
 const metrics = {
     realtimeSessions: io.metric({
@@ -54,13 +56,33 @@ app.post('/chatbot/fulfillment',  (request, response) => {
     } catch (e) {
         metrics.errors.mark();
         console.error(e);
+        Sentry.captureException(e);
+        Sentry.withScope(scope => {
+            scope.setExtra('requestbody', request.body);
+            scope.setLevel('fatal');
+            Sentry.captureException(e);
+        });
         response.status(400);
         response.send({
             code: 400,
             message: e.message
         });
-
     }
+    Sentry.configureScope(scope => {
+        scope.setTag('locale', agent.locale);
+        scope.setExtra('intent', agent.intent);
+        scope.setExtra('action', agent.action);
+        scope.setExtra('parameters', agent.parameters);
+        scope.setExtra('contexts', agent.contexts);
+        scope.setExtra('context', agent.context);
+        scope.setExtra('requestSource', agent.requestSource);
+        scope.setExtra('originalRequest', agent.originalRequest);
+        scope.setExtra('query', agent.query);
+        scope.setExtra('locale', agent.locale);
+        scope.setExtra('session', agent.session);
+        scope.setExtra('consoleMessages', agent.consoleMessages);
+        scope.setExtra('alternativeQueryResults', agent.alternativeQueryResults);
+    });
     agent.handleRequest(intentFunctions)
         .then(() => {
             console.log('Handled fulfilment request', agent.intent, agent.query)
@@ -68,6 +90,10 @@ app.post('/chatbot/fulfillment',  (request, response) => {
         .catch(e => {
             metrics.errors.mark();
             console.error(e);
+            Sentry.withScope(scope => {
+                scope.setLevel('fatal');
+                Sentry.captureException(e);
+            });
             response.status(400);
             response.send({
                 code: 400,
@@ -87,6 +113,6 @@ try {
 https.createServer({
     key: key,
     cert: cert
-}, app).listen(3002, function () {
+}, app).listen(3002, () => {
     console.log('Server running on port 3002');
 });
