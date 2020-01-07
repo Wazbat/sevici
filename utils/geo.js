@@ -115,7 +115,6 @@ module.exports = {
             };
             const response = await googleMapsClient.distanceMatrix(query).asPromise();
             const result = response.json.rows[0];
-            console.log('Distance matrix', result);
             if (result.status !== 'OK') {
                 matrix = {
                     distance: response.json.rows[0].elements[0].distance.text,
