@@ -1,0 +1,14 @@
+{
+  "FEATURE_NOT_ENABLED": {
+    "en": "I'm sorry, that feature isn't enabled at the moment",
+    "es": "Perdona. Esa funcion no esta disponible en este momento"
+  },
+  "NO_RESULTS_GEO": {
+    "en": "I'm sorry. I couldn't find anywhere in Seville that matched",
+    "es": "No pude encontrar ningun sitio en Sevilla que coincide"
+  },
+  "NO_STATION_RESULTS": {
+    "en": "I couldn't find any stations that mach",
+    "es": "Perdona. No coincide ninguna estacion con su busqueda"
+  }
+}

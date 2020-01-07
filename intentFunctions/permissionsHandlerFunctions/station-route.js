@@ -1,19 +1,22 @@
+const configcat = require("configcat-node");
+const configCatClient = configcat.createClient(process.env.CONFIGCATKEY);
 const geolib = require('geolib');
 const seviciService = require('../../utils/sevici');
 const { getGeoCodePlace, getDirections } = require("../../utils/geo");
-const { buildStationRouteString, generateRouteCard } = require("../../utils/general");
+const { buildStationRouteString, generateRouteCard, getErrorMessage } = require("../../utils/general");
 const { Permission } = require('actions-on-google');
 module.exports = {
     async routeSearch(conv) {
         const query = {};
         if (conv.data.originalParams.departure) {
             // If the user has specified a departure that isn't them
-            let target = await getGeoCodePlace(conv.data.originalParams.departure);
-            if (target) {
-                query.departure = target;
+            const target = await getGeoCodePlace(conv.data.originalParams.departure);
+            if (target.error) {
+                return conv.ask(getErrorMessage(target.error));
             } else {
-                return conv.ask(`I'm sorry. I couldn't find anywhere in Seville that matched ${conv.data.originalParams.departure['business-name']}`);
+                query.target = target;
             }
+
         } else {
             // Check if user location was provided
             let {location} = conv.device;
@@ -22,22 +25,20 @@ module.exports = {
             query.departure.user = true;
         }
         query.destination = await getGeoCodePlace(conv.data.originalParams.destination);
-        if (!query.destination) return conv.ask(`I'm sorry, I couldn't find anywhere in Seville that matched ${conv.data.originalParams.destination['business-name']}`);
-        const route = await getDirections(query.departure.coordinates, query.destination.coordinates);
-        if (route) {
+        if (query.destination.error) return conv.ask(getErrorMessage(query.destination.error));
+        const travelTime = await configCatClient.getValueAsync('distancematrixroute',  false);
+        const route = await getDirections(query.departure.coordinates, query.destination.coordinates, travelTime);
+        if (!route.error) {
 
             const textMessage = buildStationRouteString(route, query);
             conv.ask(textMessage);
             conv.ask(generateRouteCard(route));
-            const route = {
+            conv.contexts.set('route', 5, {
                 departureStation: route.departureStation,
                 destinationStation: route.destinationStation
-            };
-            conv.contexts.set('route', 5, route);
+            });
         } else {
-            let message = `I'm sorry, I couldn't find a route for some reason`;
-            //TODO Personalise message based on search criteria
-            conv.ask(message)
+            conv.ask(getErrorMessage(route.error));
         }
 
     },

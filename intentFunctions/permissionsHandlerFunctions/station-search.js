@@ -1,7 +1,7 @@
 const geolib = require('geolib');
 const seviciService = require('../../utils/sevici');
 const { getGeoCodePlace } = require("../../utils/geo");
-const { generateStationCard, humanizeStationName, getDirection, buildStationSearchString } = require("../../utils/general");
+const { generateStationCard, humanizeStationName, getDirection, buildStationSearchString, getErrorMessage} = require("../../utils/general");
 const { Permission } = require('actions-on-google');
 module.exports = {
     async stationSearch(conv) {
@@ -9,15 +9,13 @@ module.exports = {
         const query = conv.data.filter;
         if (conv.parameters.location) {
             // If the user has specified a location
-            let target = await getGeoCodePlace(conv.parameters.location);
-            if (target) {
-                query.target = target;
+            const target = await getGeoCodePlace(conv.parameters.location);
+            if (target.error) {
+                return conv.ask(getErrorMessage(target.error));
             } else {
-                return conv.ask(`I'm sorry. I couldn't find anywhere in Seville that matched ${conv.parameters.location['business-name']}`);
+                query.target = target;
             }
-        } else if (conv.data.filter.target) {
-            console.warn('Had a target?')
-            // TODO Find out what this was for?
+
         } else {
             // Check if user location was provided
             let {location} = conv.device;
@@ -47,6 +45,7 @@ module.exports = {
             conv.ask(generateStationCard(station, { distance, originalParams: conv.data.originalParams }));
             conv.contexts.set('station', 5, station);
         } else {
+            conv.ask(getErrorMessage('NO_STATION_RESULTS'));
             let message = `I'm sorry, I couldn't find any stations matching that criteria`;
             //TODO Personalise message based on search criteria
             conv.ask(message)

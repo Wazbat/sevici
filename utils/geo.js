@@ -5,6 +5,8 @@ const googleMapsClient = require('@google/maps').createClient({
 });
 const seviciService = require('./sevici');
 const geolib = require('geolib');
+const configcat = require("configcat-node");
+const configCatClient = configcat.createClient(process.env.CONFIGCATKEY);
 const io = require('@pm2/io');
 const metrics = {
     geocodingCallsSec: io.meter({
@@ -28,12 +30,14 @@ const geoCache = new Map();
 const directionsCache = new Map();
 module.exports = {
     async getGeoCodePlace(location) {
+        const allowed = await configCatClient.getValueAsync('geocodingglobal',  false);
+        if (!allowed) return {error: 'FEATURE_NOT_ENABLED'};
         let query =  location['business-name'] || '';
         query += location['street-address'] || '';
         query = query.toLowerCase();
         if (!query) {
             console.error('Empty location', location);
-            return;
+            return { error: 'EMPTY_SEARCH_GEO'};
         }
         // Return cached query if it's less than a set time ago
         const cached = geoCache.get(query);
@@ -71,6 +75,7 @@ module.exports = {
             geoCache.set(query, res);
             return res;
         }
+        return { error: 'NO_RESULTS_GEO'}
     },
 
     async getDirections(start, end, travelTime = false) {
@@ -87,8 +92,8 @@ module.exports = {
                 },
                 freeParking: true
             })
-        ])
-
+        ]);
+        if (!departureStation || !destinationStation) return { error: 'NO_STATION_RESULTS' };
         const key = JSON.stringify({start, end});
         const cached = directionsCache.get(key);
         if (cached) {
@@ -98,7 +103,7 @@ module.exports = {
             return cached;
         }
         let matrix;
-        if (travelTime) {
+        if (travelTime && await configCatClient.getValueAsync('distancematrixglobal',  false)) {
             const query = {
                 origins: [departureStation.position],
                 destinations: [destinationStation.position],

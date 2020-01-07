@@ -3,6 +3,7 @@ const _ = require('lodash');
 const seviciService = require("./sevici");
 const buildUrl = require('build-url');
 const { BasicCard, Button, Image }  = require("actions-on-google");
+const errorStrings = require('../errors');
 
 module.exports = {
     /**
@@ -218,5 +219,29 @@ module.exports = {
         let humanizedName = name.toString().replace(/\d+_/i, '');
         humanizedName = _.startCase(_.toLower(humanizedName));
         return humanizedName;
+    },
+    getErrorMessage(errorName, language = 'en') {
+        const strings = errorStrings[errorName];
+        if (!strings) return errorName;
+        let message;
+        switch (language) {
+            case 'en':
+            // TODO Check if locales are needed here
+            case 'en-AU':
+            case 'en-CA':
+            case 'en-GB':
+            case 'en-IN':
+            case 'en-US':
+                message = strings['en'];
+                break;
+            case 'es':
+            case 'es-419':
+            case 'es-ES':
+                message = strings['es'];
+                break;
+            default:
+                message = strings['en'];
+        }
+        return message || errorName;
     }
 };
