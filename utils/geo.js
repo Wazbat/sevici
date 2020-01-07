@@ -33,7 +33,7 @@ module.exports = {
         const allowed = await configCatClient.getValueAsync('geocodingglobal',  false);
         if (!allowed) return {error: 'FEATURE_NOT_ENABLED_GEOCODING'};
         let query =  location['business-name'] || '';
-        query += location['street-address'] || '';
+        query += ` ${location['street-address']}` || '';
         query = query.toLowerCase();
         if (!query) {
             console.error('Empty location', location);
@@ -67,7 +67,8 @@ module.exports = {
         if (response.json.results.length) {
             const res = {
                 // TODO Extract name properly
-                name: response.json.results[0]['address_components'][0]['short_name'],
+                // name: response.json.results[0]['address_components'][0]['short_name'],
+                name: query,
                 coordinates: response.json.results[0].geometry.location,
                 timestamp: new Date().getTime(),
                 cachedUses: 0

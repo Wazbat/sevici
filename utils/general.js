@@ -226,7 +226,7 @@ module.exports = {
         let message;
         switch (language) {
             case 'en':
-            // TODO Check if locales are needed here
+            // TODO Check if locales are actually needed here
             case 'en-AU':
             case 'en-CA':
             case 'en-GB':

@@ -24,6 +24,7 @@ const metrics = {
 const app = express();
 app.use(express.json());
 let intentFunctions = new Map();
+intentFunctions.set('aog.welcome', require('./intentFunctions/aog.welcome'));
 intentFunctions.set('app.station.search', require('./intentFunctions/app.station.search'));
 intentFunctions.set('aog.permissions.handler', require('./intentFunctions/permissionsHandler'));
 intentFunctions.set('app.station.extra.partCount', require('./intentFunctions/app.station.extra.partCount'));
@@ -85,7 +86,7 @@ app.post('/chatbot/fulfillment',  (request, response) => {
     });
     agent.handleRequest(intentFunctions)
         .then(() => {
-            console.log('Handled fulfilment request', agent.intent, agent.query)
+            console.log('Handled fulfilment request', agent.intent, agent.query);
         })
         .catch(e => {
             metrics.errors.mark();
