@@ -2,8 +2,9 @@ const configcat = require("configcat-node");
 const configCatClient = configcat.createClient(process.env.CONFIGCATKEY);
 const geolib = require('geolib');
 const seviciService = require('../../utils/sevici');
+const stringService = require('../../utils/locale');
 const { getGeoCodePlace, getDirections } = require("../../utils/geo");
-const { buildStationRouteString, generateRouteCard, getErrorMessage } = require("../../utils/general");
+const { buildStationRouteString, generateRouteCard } = require("../../utils/general");
 const { Permission } = require('actions-on-google');
 module.exports = {
     async routeSearch(conv) {
@@ -12,7 +13,7 @@ module.exports = {
             // If the user has specified a departure that isn't them
             const target = await getGeoCodePlace(conv.data.originalParams.departure);
             if (target.error) {
-                return conv.ask(getErrorMessage(target.error, conv.body.queryResult.languageCode));
+                return conv.ask(stringService.getErrorMessage(target.error, conv.body.queryResult.languageCode));
             } else {
                 query.target = target;
             }
@@ -25,7 +26,7 @@ module.exports = {
             query.departure.user = true;
         }
         query.destination = await getGeoCodePlace(conv.data.originalParams.destination);
-        if (query.destination.error) return conv.ask(getErrorMessage(query.destination.error, conv.body.queryResult.languageCode));
+        if (query.destination.error) return conv.ask(stringService.getErrorMessage(query.destination.error, conv.body.queryResult.languageCode));
         const travelTime = await configCatClient.getValueAsync('distancematrixroute',  false);
         const route = await getDirections(query.departure.coordinates, query.destination.coordinates, travelTime);
         if (!route.error) {
@@ -38,7 +39,7 @@ module.exports = {
                 destinationStation: route.destinationStation
             });
         } else {
-            conv.ask(getErrorMessage(route.error, conv.body.queryResult.languageCode));
+            conv.ask(stringService.getErrorMessage(route.error, conv.body.queryResult.languageCode));
         }
 
     },

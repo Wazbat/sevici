@@ -1,4 +1,5 @@
-const { updateStationContext, roundDistance, humanizeStationName, getDirection, getErrorMessage } = require("../../utils/general");
+const { updateStationContext, roundDistance, humanizeStationName, getDirection } = require("../../utils/general");
+const stringService = require('../../utils/locale');
 const geolib = require('geolib');
 const { Permission, LinkOutSuggestion, Suggestions } = require('actions-on-google');
 const buildUrl = require('build-url');
@@ -10,7 +11,7 @@ module.exports = {
             // If the user has specified a location
             const target = await getGeoCodePlace(conv.parameters.location);
             if (target.error) {
-                return conv.ask(getErrorMessage(target.error, conv.body.queryResult.languageCode));
+                return conv.ask(stringService.getErrorMessage(target.error, conv.body.queryResult.languageCode));
             } else {
                 query.target = target;
             }

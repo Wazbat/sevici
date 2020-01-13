@@ -1,7 +1,8 @@
 const geolib = require('geolib');
 const seviciService = require('../../utils/sevici');
+const stringService = require('../../utils/locale');
 const { getGeoCodePlace } = require("../../utils/geo");
-const { generateStationCard, humanizeStationName, getDirection, buildStationSearchString, getErrorMessage} = require("../../utils/general");
+const { generateStationCard, humanizeStationName, getDirection, buildStationSearchString} = require("../../utils/general");
 const { Permission } = require('actions-on-google');
 module.exports = {
     async stationSearch(conv) {
@@ -11,7 +12,7 @@ module.exports = {
             // If the user has specified a location
             const target = await getGeoCodePlace(conv.parameters.location);
             if (target.error) {
-                return conv.ask(getErrorMessage(target.error, conv.body.queryResult.languageCode));
+                return conv.ask(stringService.getErrorMessage(target.error, conv.body.queryResult.languageCode));
             } else {
                 query.target = target;
             }
@@ -45,7 +46,7 @@ module.exports = {
             conv.ask(generateStationCard(station, { distance, originalParams: conv.data.originalParams }));
             conv.contexts.set('station', 5, station);
         } else {
-            conv.ask(getErrorMessage('NO_STATION_RESULTS', conv.body.queryResult.languageCode));
+            conv.ask(stringService.getErrorMessage('NO_STATION_RESULTS', conv.body.queryResult.languageCode));
         }
 
     },
