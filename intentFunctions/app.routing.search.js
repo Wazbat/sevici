@@ -7,7 +7,7 @@ module.exports = async (agent) => {
             // If the user provided a departure location, search and handle that
             await routeSearch(conv);
         } else {
-            stationRouteRequester(conv, 'To find a route from you');
+            stationRouteRequester(conv);
         }
 
         agent.add(conv)

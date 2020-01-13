@@ -1,10 +1,12 @@
 const geolib = require('geolib');
 const _ = require('lodash');
-const seviciService = require("./sevici");
+const seviciService = require('./sevici');
+const stringService = require('./locale');
 const buildUrl = require('build-url');
 const { BasicCard, Button, Image }  = require("actions-on-google");
 
 module.exports = {
+    // TODO Convert to class
     /**
      * Builds a object with optional properties that are later used to search
      * @param criteria
@@ -24,17 +26,28 @@ module.exports = {
      * Examples: northwest, eastnortheast, south, northnorthwest
      * @param origin Origin coordinates object
      * @param destination Destination coordinates object
+     * @param locale {string} Locale of response
      * @returns {string}
      */
-    getDirection(origin, destination) {
+    getDirection(origin, destination, locale = null) {
+        const directionStrings = {
+            N: 'north',
+            E: 'east',
+            S: 'south',
+            W: 'west'
+        };
+        const localeCode = stringService.getLocale(locale);
+        switch (localeCode) {
+            case 'es':
+                directionStrings.N = 'norte';
+                directionStrings.E = 'este';
+                directionStrings.S = 'sur';
+                directionStrings.W = 'oeste';
+                break;
+        }
         const direction = geolib.getCompassDirection(origin, destination);
         const letters = direction.split('');
-        const words = letters.map(letter => {
-            if (letter === 'N') return 'north';
-            if (letter === 'E') return 'east';
-            if (letter === 'S') return 'south';
-            if (letter === 'W') return 'west';
-        });
+        const words = letters.map(letter => directionStrings[letter]);
         return words.join('');
     },
     /**
@@ -46,54 +59,105 @@ module.exports = {
      * @param query
      * @returns {string}
      */
-    buildStationSearchString(name, distance, direction, query) {
-        let string = 'The ';
-        string += query.closest ? 'closest' : 'furthest';
-        string += ` station from ${query.target.name || 'you'} `;
-        if (query.freeBikes) {
-            string += 'with free bikes'
-        } else if (query.freeBikes === false) {
-            string += 'without any available bikes';
+    buildStationSearchString(name, distance, direction, query, locale) {
+        const localeCode = stringService.getLocale(locale);
+        if (localeCode === 'en') {
+            let string = 'The ';
+            string += query.closest ? 'closest' : 'furthest';
+            string += ` station from ${query.target.name || 'you'} `;
+            if (query.freeBikes) {
+                string += 'with free bikes'
+            } else if (query.freeBikes === false) {
+                string += 'without any available bikes';
+            }
+            if (query.freeParking) {
+                if (query.freeBikes || query.freeBikes === false) string += ' and ';
+                string += 'with space to dock';
+            } else if (query.freeParking === false) {
+                if (query.freeBikes || query.freeBikes === false) string += ' and ';
+                string += 'without any space to park';
+            }
+            const distanceString = module.exports.roundDistance(distance, locale);
+            string += ` is ${name}, ${distanceString} away to the ${direction}`;
+            return string;
+        } else if (localeCode === 'es') {
+            let string = 'La  estación ';
+            string += query.closest ? 'mas cercana' : 'mas lejana';
+            string += ` a ${query.target.name || 'ti'} `;
+            if (query.freeBikes) {
+                string += 'con bicis libres'
+            } else if (query.freeBikes === false) {
+                string += 'sin bicis libres';
+            }
+            if (query.freeParking) {
+                if (query.freeBikes || query.freeBikes === false) string += ' y ';
+                string += 'con espacio para aparcar';
+            } else if (query.freeParking === false) {
+                if (query.freeBikes || query.freeBikes === false) string += ' y ';
+                string += 'sin espacio para aparcar';
+            }
+            const distanceString = module.exports.roundDistance(distance, locale);
+            string += ` es ${name}, a ${distanceString} hacia el ${direction}`;
+            return string;
+        } else {
+            throw new Error(`Unexpected locale code in station search string generation: ${locale}`)
         }
-        if (query.freeParking) {
-            if (query.freeBikes || query.freeBikes === false) string += ' and ';
-            string += 'with space to dock';
-        } else if (query.freeParking === false) {
-            if (query.freeBikes || query.freeBikes === false) string += ' and ';
-            string += 'without any space to park';
-        }
-        const distanceString = module.exports.roundDistance(distance);
-        string += ` is ${name}, ${distanceString} away to the ${direction}`;
-        return string;
-    },
-    buildStationDetailsString(station) {
-        let string = module.exports.humanizeStationName(station.name);
-        string += ` has ${station.available_bikes} bikes available and ${station.available_bike_stands} free spaces to park`;
-        return string;
-    },
-    buildStationRouteString(route, query) {
-        let string = `The best way to get `;
-        // TODO Extract name properly
-        if (!query.departure.user) string += `from ${query.departure.name}`;
-        string += `to ${query.destination.name} is by collecting one of ${route.departureStation.available_bikes} bikes ` +
-            `from ${module.exports.humanizeStationName(route.departureStation.name)}, ${module.exports.roundDistance(route.departureStationDistance)} away, then cycling `;
-        if (route.matrix) string += `${route.matrix.duration} `;
-        string += `to ${module.exports.humanizeStationName(route.destinationStation.name)} `;
-        // TODO Add text that says things like "Which is x meters away from query.destination
-        string += `and parking at one of the ${route.destinationStation.available_bike_stands} available spots, ` +
-            `${module.exports.roundDistance(route.destinationStationDistance)} away from ${query.destination.name}`;
-        return string;
-    },
-    generateStationCard(station, data = {}) {
-        const humanizedName = module.exports.humanizeStationName(station.name);
-        let text = '';
-        if (data.distance) text += `Distance: **${data.distance} meters**  \n`;
 
-        text += `Available bikes: **${station.available_bikes}**  \n
+    },
+    buildStationDetailsString(station, locale) {
+        return stringService.getString('%{station} has ${bikeCount} bikes available and ${standCount} spaces to park', locale)
+            .replace('%{station}', module.exports.humanizeStationName(station.name))
+            .replace('%{bikeCount}', station.available_bikes)
+            .replace('%{standCount}', station.available_bike_stands);
+    },
+    buildStationRouteString(route, query, locale) {
+        const localeCode = stringService.getLocale(locale);
+        if (localeCode === 'en') {
+            let string = `The best way to get `;
+            if (!query.departure.user) string += `from ${query.departure.name} `;
+            string += `to ${query.destination.name} is by collecting one of ${route.departureStation.available_bikes} bikes ` +
+                `from ${module.exports.humanizeStationName(route.departureStation.name)}, ${module.exports.roundDistance(route.departureStationDistance, locale)} away, then cycling `;
+            if (route.matrix) string += `${route.matrix.duration} `;
+            string += `to ${module.exports.humanizeStationName(route.destinationStation.name)} `;
+            string += `and parking at one of the ${route.destinationStation.available_bike_stands} available spots, ` +
+                `${module.exports.roundDistance(route.destinationStationDistance, locale)} away from ${query.destination.name}`;
+            return string;
+        } else if (localeCode === 'es') {
+            let string = `La mejor manera para llegar `;
+            if (!query.departure.user) string += `desde ${query.departure.name}`;
+            string += `hacia ${query.destination.name} es recojiendo uno de ${route.departureStation.available_bikes} bicis disponibles ` +
+                `de ${module.exports.humanizeStationName(route.departureStation.name)}, a ${module.exports.roundDistance(route.departureStationDistance, locale)}, luego viajar `;
+            if (route.matrix) string += `${route.matrix.duration} `;
+            string += `hacia ${module.exports.humanizeStationName(route.destinationStation.name)} `;
+            string += `y aparcar en uno de los ${route.destinationStation.available_bike_stands} sitios disponibles, ` +
+                `a ${module.exports.roundDistance(route.destinationStationDistance, locale)} de ${query.destination.name}`;
+            return string;
+        } else {
+            throw new Error(`Unexpected locale code in route string generation: ${locale}`)
+        }
+
+    },
+    generateStationCard(station, locale, data = {}) {
+        const localeCode = stringService.getLocale(locale);
+        let text = '';
+        if (localeCode === 'en') {
+            if (data.distance) text += `Distance: **${data.distance} meters**  \n`;
+            text += `Available bikes: **${station.available_bikes}**  \n
                 Available stands: **${station.available_bike_stands}**  \n
                 Total stands: **${station.bike_stands}**  \n
                 Address: **${station.address}**  \n
                 Status: **${station.status}**  \n`;
+        } else if (localeCode === 'es') {
+            if (data.distance) text += `Distancia: **${data.distance} metros**  \n`;
+            text += `Bicicletas disponibles: **${station.available_bikes}**  \n
+                Espacios de aparcamiento disponibles: **${station.available_bike_stands}**  \n
+                Aparcamientos totales: **${station.bike_stands}**  \n
+                Direccion: **${station.address}**  \n
+                Status: **${station.status}**  \n`;
+        } else {
+            throw new Error(`Unexpected locale code in station card generation: ${locale}`)
+        }
+        const humanizedName = module.exports.humanizeStationName(station.name);
         if (data.originalParams && data.originalParams.criteria) text += `Query: **${data.originalParams.criteria.join(' ')}**`;
         return new BasicCard({
             text,
@@ -101,7 +165,7 @@ module.exports = {
             title: humanizedName,
             buttons: [
                 new Button({
-                    title: 'View on map',
+                    title: stringService.getString('view on map', locale),
                     url: buildUrl('https://www.google.com/maps/search/', {
                         queryParams: {
                             api: 1,
@@ -123,11 +187,23 @@ module.exports = {
             display: 'CROPPED',
         })
     },
-    generateRouteCard(route) {
-        let text = `Departure: **${module.exports.humanizeStationName(route.departureStation.name)}**  \n
+    generateRouteCard(route, locale) {
+
+        let text = '';
+        const localeCode = stringService.getLocale(locale);
+        if (localeCode === 'en') {
+            text = `Departure: **${module.exports.humanizeStationName(route.departureStation.name)}**  \n
             Available bikes: **${route.departureStation.available_bikes}**  \n
             Destination: **${module.exports.humanizeStationName(route.destinationStation.name)}**  \n
             Available stands: **${route.departureStation.available_bike_stands}** \n`;
+        } else if (localeCode === 'es') {
+            text = `Salida: **${module.exports.humanizeStationName(route.departureStation.name)}**  \n
+            Bicis disponibles: **${route.departureStation.available_bikes}**  \n
+            Destino: **${module.exports.humanizeStationName(route.destinationStation.name)}**  \n
+            Aparcamientos disponibles: **${route.departureStation.available_bike_stands}** \n`;
+        } else {
+            throw new Error(`Unexpected locale code in route card generation: ${locale}`)
+        }
         return new BasicCard({
             text,
             subtitle: route.matrix ? route.matrix.duration : null,
@@ -201,11 +277,20 @@ module.exports = {
      * 22 meters
      * 3.5 kilometers
      * @param distance {number} Distance in meters
+     * @param locale {string} Current locale
      * @returns {string} Number and unit
      */
-    roundDistance(distance) {
-        if (distance > 999) return `${_.round(distance/1000, 1)} kilometers`;
-        return `${distance} meters`;
+    roundDistance(distance, locale) {
+        let units = { km: 'kilometers', m: 'meters'};
+        const localeCode = stringService.getLocale(locale);
+        switch (localeCode) {
+            case 'es':
+                units.km = 'kilometros';
+                units.m = 'metros';
+            break;
+        }
+        if (distance > 999) return `${_.round(distance/1000, 1)} ${units.km}`;
+        return `${distance} ${units.m}`;
 
     },
     /**

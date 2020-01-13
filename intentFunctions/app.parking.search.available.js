@@ -1,4 +1,5 @@
 const { stationSearchRequester, stationSearch } = require("./permissionsHandlerFunctions/station-search");
+const stringService = require('../utils/locale');
 module.exports = async (agent) => {
     const conv = agent.conv();
     if (conv) {
@@ -7,7 +8,7 @@ module.exports = async (agent) => {
         if (conv.parameters.location) {
             await stationSearch(conv);
         } else {
-            stationSearchRequester(conv, 'To search for somewhere to park');
+            stationSearchRequester(conv, stringService.getString('to search for somewhere to park', conv.user.locale));
         }
         conv.data.originalParams = conv.parameters;
 

@@ -26,6 +26,7 @@ const metrics = {
         id: 'app/geocoding/total/requests'
     }),
 };
+// Allowed in https://cloud.google.com/maps-platform/terms/maps-service-terms/ Point 3.4
 const geoCache = new Map();
 const directionsCache = new Map();
 module.exports = {

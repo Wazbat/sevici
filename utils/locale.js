@@ -7,7 +7,64 @@ class TranslateService {
         'dont have location permission' : {
             en : `I'm sorry. I need to access your precise location to do this. Is there anything else I can help you with?`,
             es: `Perdona, pero necesito acceso a tu ubicacion actual para poder hacer esto. Te puedo ayudar con algo mas?`
-
+        },
+        'welcome to the helper': {
+            en: 'Welcome to Sevici Helper. What can I help you with today?',
+            es: 'Bienvenido al asistente. Como te puedo ayudar?'
+        },
+        '%{station} is %{distance} away to the %{direction} from %{target}': {
+            en: '%{station} is %{distance} away to the %{direction} from %{target}',
+            es: '%{station} esta a %{distance} hacia el %{direction} de %{target}'
+        },
+        '%{station} is %{distance} away to the %{direction}': {
+            en: '%{station} is %{distance} away to the %{direction}',
+            es: '%{station} esta a %{distance} hacia el %{direction}'
+        },
+        '%{station} has ${bikeCount} bikes available and ${standCount} spaces to park': {
+            en: '%{station} has ${bikeCount} available bikes and ${standCount} spaces to park',
+            es: '%{station} tiene ${bikeCount} available bikes and ${standCount} spaces to park'
+        },
+        // Suggestion Chips and actions
+        'closest available bike': {
+            en: 'Closest available bike',
+            es: 'Bicicleta mas cercana'
+        },
+        'closest available dock': {
+            en: 'Closest available dock',
+            es: 'Aparcamiento cercano'
+        },
+        'number of bikes': {
+            en: 'Number of bikes',
+            es: 'Cantidad de bicis'
+        },
+        'number of free spots': {
+            en: 'Number of free spots',
+            es: 'Espacios libres'
+        },
+        'view on map': {
+            en: 'View on Map',
+            es: 'Ver en Mapa'
+        },
+        // Permission prompts
+        'to do this': {
+            en: 'To do this',
+            es: 'Para hacer esto'
+        },
+        'to search for bikes': {
+            en: 'To search for bikes',
+            es: 'Para encontrar bicicletas'
+        },
+        'to search for somewhere to park': {
+            en: 'To search for somewhere to park',
+            es: 'Para buscar un lugar donde aparcar'
+        },
+        'to find a route from you': {
+            en: 'To find a route from you',
+            es: 'Para buscar una ruta desde ti'
+        },
+        'to find your distance from this station': {
+            en: 'To find your distance from this station',
+            es: 'Para calcular tu distancia desde esta estacion'
         }
     };
     errors = {

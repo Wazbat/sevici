@@ -2,7 +2,7 @@ const geolib = require('geolib');
 const seviciService = require('../../utils/sevici');
 const stringService = require('../../utils/locale');
 const { getGeoCodePlace } = require("../../utils/geo");
-const { generateStationCard, humanizeStationName, getDirection, buildStationSearchString} = require("../../utils/general");
+const { generateStationCard, humanizeStationName, getDirection, buildStationSearchString, roundDistance} = require("../../utils/general");
 const { Permission } = require('actions-on-google');
 module.exports = {
     async stationSearch(conv) {
@@ -32,18 +32,17 @@ module.exports = {
             city: 'Algodonales'
           }
          */
-        const user = conv.user;
 
         const station = await seviciService.searchStation(query);
         if (station) {
             const distance = geolib.getDistance(query.target.coordinates, station.position);
-            const direction = getDirection(query.target.coordinates, station.position);
+            const direction = getDirection(query.target.coordinates, station.position, conv.user.locale);
 
             const humanizedName = humanizeStationName(station.name);
 
-            const textMessage = buildStationSearchString(humanizedName, distance, direction, query);
+            const textMessage = buildStationSearchString(humanizedName, distance, direction, query, conv.user.locale);
             conv.ask(textMessage);
-            conv.ask(generateStationCard(station, { distance, originalParams: conv.data.originalParams }));
+            conv.ask(generateStationCard(station, conv.user.locale, { distance, originalParams: conv.data.originalParams }));
             conv.contexts.set('station', 5, station);
         } else {
             conv.ask(stringService.getErrorMessage('NO_STATION_RESULTS', conv.user.locale));
@@ -55,12 +54,13 @@ module.exports = {
      * @param conv Conv object
      * @param context Optional context to explain why the location is being requested
      */
-    stationSearchRequester(conv, context = 'To find stations') {
+    stationSearchRequester(conv, context = null) {
+        const finalContext = context || stringService.getString('to do this', conv.user.locale);
         const permissions = ['DEVICE_PRECISE_LOCATION'];
         // Location permissions only work for verified users
         // https://developers.google.com/actions/assistant/guest-users
         const options = {
-            context,
+            finalContext,
             permissions,
         };
         conv.ask(new Permission(options));

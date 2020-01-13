@@ -6,6 +6,7 @@ module.exports = {
         switch (conv.parameters.stationPart) {
             case 'dock':
             case 'free dock':
+                // TODO Localize
                 responseString = `There are a total of ${updatedStation.bike_stands} stands, with ${updatedStation.available_bike_stands} unoccupied.`;
                 break;
             case 'bicycle':

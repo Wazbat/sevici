@@ -18,7 +18,7 @@ module.exports = {
         } else {
             // Check if user location was provided
             let {location} = conv.device;
-            if (!location) return conv.ask(`I'm sorry. I need to access your precise location to do this. Is there anything else I can help you with?`);
+            if (!location) return conv.ask(stringService.getString('dont have location permission', conv.user.locale));
             query.target = location;
             query.target.user = true;
         }
@@ -33,25 +33,40 @@ module.exports = {
 
         const station = await updateStationContext(conv);
         const distance = geolib.getDistance(query.target.coordinates, station.position);
-        let response = `${humanizeStationName(station.name)} is ${roundDistance(distance)} away to the ${getDirection(query.target.coordinates, station.position)}`;
-        if (query.target.name) response += ` from ${query.target.name}`;
+        let response = '';
+        if (query.target.name) {
+            response = stringService.getString('%{station} is %{distance} away to the %{direction} from %{target}')
+                .replace('%{station}', humanizeStationName(station.name))
+                .replace('%{distance}',roundDistance(distance, conv.user.locale))
+                .replace('%{direction}', getDirection(query.target.coordinates, station.position))
+                .replace('%{target}', query.target.name);
+        } else {
+            // TODO Implement this properly... Dummy
+            response = stringService.getString('%{station} is %{distance} away to the %{direction}')
+                .replace('%{station}', humanizeStationName(station.name))
+                .replace('%{distance}',roundDistance(distance, conv.user.locale))
+                .replace('%{direction}', getDirection(query.target.coordinates, station.position))
+        }
         conv.ask(response);
-        conv.ask(new Suggestions(['Number of bikes', 'Number of free parking spots']));
+        conv.ask(new Suggestions([
+            stringService.getString('number of bikes', conv.user.locale),
+            stringService.getString('number of free spots', conv.user.locale)
+        ]));
         conv.ask(new LinkOutSuggestion({
-            name: 'View on Map',
+            name: stringService.getString('view on map', conv.user.locale),
             url: buildUrl('https://www.google.com/maps/search/', {
                 queryParams: {
-                    api: 1,
+                    api: '1',
                     query: `${station.position.lat},${station.position.lng}`
                 }
             })
         }));
     },
-    getStationDistanceRequester(conv) {
+    getStationDistanceRequester(conv, context = null) {
+        const finalContext = context || stringService.getString('to find your distance from this station', conv.user.locale);
         const permissions = ['DEVICE_PRECISE_LOCATION'];
-        const context = 'To find your distance from this station';
         const options = {
-            context,
+            finalContext,
             permissions,
         };
         conv.ask(new Permission(options));

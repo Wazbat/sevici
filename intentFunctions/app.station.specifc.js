@@ -11,11 +11,13 @@ module.exports = async (agent) => {
     if (conv.parameters.number) {
         station = await seviciService.getStationByID(conv.parameters.number);
         if (station) {
-            conv.ask(buildStationDetailsString(station));
-            conv.ask(generateStationCard(station));
+            conv.ask(buildStationDetailsString(station, conv.user.locale));
+            conv.ask(generateStationCard(station, conv.user.locale));
+            // Todo Localize
             conv.ask(new Suggestions('Distance from here'));
             conv.contexts.set('station', 5, station);
         } else {
+            // Todo Localize
             conv.ask(`I'm sorry, I couldn't find any stations with the ID ${conv.parameters.number}`)
         }
     }

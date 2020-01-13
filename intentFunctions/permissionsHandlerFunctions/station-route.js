@@ -21,7 +21,7 @@ module.exports = {
         } else {
             // Check if user location was provided
             let {location} = conv.device;
-            if (!location) return conv.ask(`I'm sorry. I need to access your precise location to be able to search for stations relative to you. Is there anything else I can help you with?`);
+            if (!location) return conv.ask(stringService.getString('dont have location permission', conv.user.locale));
             query.departure = location;
             query.departure.user = true;
         }
@@ -31,9 +31,9 @@ module.exports = {
         const route = await getDirections(query.departure.coordinates, query.destination.coordinates, travelTime);
         if (!route.error) {
 
-            const textMessage = buildStationRouteString(route, query);
+            const textMessage = buildStationRouteString(route, query, conv.user.locale);
             conv.ask(textMessage);
-            conv.ask(generateRouteCard(route));
+            conv.ask(generateRouteCard(route, conv.user.locale));
             conv.contexts.set('route', 5, {
                 departureStation: route.departureStation,
                 destinationStation: route.destinationStation
@@ -46,14 +46,15 @@ module.exports = {
     /**
      *
      * @param conv Conv object
-     * @param context Optional context to explain why the location is being requested
+     * @param context Optional context to explain why the location is being requested. Must be a valid permission in locale.js
      */
-    stationRouteRequester(conv, context = 'To find a route from you') {
+    stationRouteRequester(conv, context = null) {
+        const finalContext = context || stringService.getString('to find a route from you', conv.user.locale);
         const permissions = ['DEVICE_PRECISE_LOCATION'];
         // Location permissions only work for verified users
         // https://developers.google.com/actions/assistant/guest-users
         const options = {
-            context,
+            finalContext,
             permissions,
         };
         conv.ask(new Permission(options));
