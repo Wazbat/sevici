@@ -11,7 +11,7 @@ module.exports = {
         const query = {};
         if (conv.data.originalParams.departure) {
             // If the user has specified a departure that isn't them
-            const target = await getGeoCodePlace(conv.data.originalParams.departure);
+            const target = await getGeoCodePlace(conv.data.originalParams.departure, conv.user.locale, conv.body.session);
             if (target.error) {
                 return conv.ask(stringService.getErrorMessage(target.error, conv.user.locale));
             } else {
@@ -25,10 +25,16 @@ module.exports = {
             query.departure = location;
             query.departure.user = true;
         }
-        query.destination = await getGeoCodePlace(conv.data.originalParams.destination);
+        query.destination = await getGeoCodePlace(conv.data.originalParams.destination, conv.user.locale, conv.body.session);
         if (query.destination.error) return conv.ask(stringService.getErrorMessage(query.destination.error, conv.user.locale));
-        const travelTime = await configCatClient.getValueAsync('distancematrixroute',  false);
-        const route = await getDirections(query.departure.coordinates, query.destination.coordinates, conv.user.locale, travelTime);
+
+        const userObject = {
+            identifier: conv.body.session,
+            country: stringService.getLocale(conv.user.locale)
+        };
+
+        const travelTime = await configCatClient.getValueAsync('distancematrixroute',  false, userObject);
+        const route = await getDirections(query.departure.coordinates, query.destination.coordinates, conv.user.locale, conv.body.session, travelTime);
         if (!route.error) {
 
             const textMessage = buildStationRouteString(route, query, conv.user.locale);

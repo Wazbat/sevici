@@ -31,8 +31,15 @@ const metrics = {
 const geoCache = new Map();
 const directionsCache = new Map();
 module.exports = {
-    async getGeoCodePlace(location) {
-        const allowed = await configCatClient.getValueAsync('geocodingglobal',  false);
+    async getGeoCodePlace(location, locale, sessionID = null) {
+        let userObject;
+        if (sessionID) {
+            userObject = {
+                identifier: sessionID,
+                country: stringService.getLocale(locale) || null
+            }
+        }
+        const allowed = await configCatClient.getValueAsync('geocodingglobal',  false, userObject);
         if (!allowed) return {error: 'FEATURE_NOT_ENABLED_GEOCODING'};
         let query =  location['business-name'] || '';
         query += ` ${location['street-address']}` || '';
@@ -81,7 +88,14 @@ module.exports = {
         return { error: 'NO_RESULTS_GEO'}
     },
 
-    async getDirections(start, end, locale, travelTime = false) {
+    async getDirections(start, end, locale, sessionID = null, travelTime = false) {
+        let userObject;
+        if (sessionID) {
+            userObject = {
+                identifier: sessionID,
+                country: stringService.getLocale(locale) || null
+            }
+        }
         const [departureStation, destinationStation] = await Promise.all([
             seviciService.searchStation({
                 target: {
@@ -106,7 +120,8 @@ module.exports = {
             return cached;
         }
         let matrix;
-        if (travelTime && await configCatClient.getValueAsync('distancematrixglobal',  false)) {
+        // TODO Implement user objects for user targeting
+        if (travelTime && await configCatClient.getValueAsync('distancematrixglobal',  false, userObject)) {
             const query = {
                 origins: [departureStation.position],
                 destinations: [destinationStation.position],

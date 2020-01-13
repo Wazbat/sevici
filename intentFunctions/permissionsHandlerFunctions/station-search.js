@@ -10,7 +10,7 @@ module.exports = {
         const query = conv.data.filter;
         if (conv.parameters.location) {
             // If the user has specified a location
-            const target = await getGeoCodePlace(conv.parameters.location);
+            const target = await getGeoCodePlace(conv.parameters.location, conv.user.locale, conv.body.session);
             if (target.error) {
                 return conv.ask(stringService.getErrorMessage(target.error, conv.user.locale));
             } else {
