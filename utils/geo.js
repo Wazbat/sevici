@@ -8,6 +8,7 @@ const geolib = require('geolib');
 const configcat = require("configcat-node");
 const configCatClient = configcat.createClient(process.env.CONFIGCATKEY);
 const io = require('@pm2/io');
+const stringService = require("./locale");
 const metrics = {
     geocodingCallsSec: io.meter({
         name: 'geocodingCalls/sec',
@@ -80,7 +81,7 @@ module.exports = {
         return { error: 'NO_RESULTS_GEO'}
     },
 
-    async getDirections(start, end, travelTime = false) {
+    async getDirections(start, end, locale, travelTime = false) {
         const [departureStation, destinationStation] = await Promise.all([
             seviciService.searchStation({
                 target: {
@@ -111,8 +112,7 @@ module.exports = {
                 destinations: [destinationStation.position],
                 mode: 'bicycling',
                 units: 'metric',
-                // TODO Support multiple languages
-                language: 'en',
+                language: stringService.getLocale(locale) || 'en',
                 timeout: 1500
             };
             const response = await googleMapsClient.distanceMatrix(query).asPromise();

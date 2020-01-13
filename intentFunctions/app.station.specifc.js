@@ -1,5 +1,5 @@
 const { Suggestions } = require('actions-on-google');
-
+const stringService = require('../utils/locale');
 const { buildStationDetailsString, generateStationCard } = require("../utils/general");
 const seviciService = require("../utils/sevici");
 module.exports = async (agent) => {
@@ -13,12 +13,10 @@ module.exports = async (agent) => {
         if (station) {
             conv.ask(buildStationDetailsString(station, conv.user.locale));
             conv.ask(generateStationCard(station, conv.user.locale));
-            // Todo Localize
-            conv.ask(new Suggestions('Distance from here'));
+            conv.ask(new Suggestions(stringService.getString('distance from here', conv.user.locale)));
             conv.contexts.set('station', 5, station);
         } else {
-            // Todo Localize
-            conv.ask(`I'm sorry, I couldn't find any stations with the ID ${conv.parameters.number}`)
+            conv.ask(stringService.getString('couldnt find any stations with id %{id}' , conv.user.locale).replace('%{id}', conv.parameters.number));
         }
     }
 

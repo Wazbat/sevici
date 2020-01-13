@@ -24,6 +24,26 @@ class TranslateService {
             en: '%{station} has ${bikeCount} available bikes and ${standCount} spaces to park',
             es: '%{station} tiene ${bikeCount} available bikes and ${standCount} spaces to park'
         },
+        'couldnt find any stations with id %{id}': {
+            en: `I'm sorry, I couldn't find any stations with the ID %{id}`,
+            es: 'Perdon, no pude encontrar ninguna estacion con el ID %{id}'
+        },
+        'total of %{stands} stands, with %{unnocupied_stands} unnocupied': {
+            en: 'There are a total of %{stands} stands, with %{unnocupied_stands} unoccupied.',
+            es: 'Hay un total de %{stands} espacios para acoplar bicicletas, con %{unnocupied_stands} libres'
+        },
+        'theres %{bikes} bikes available, with room to park %{unnocupied_stands} more': {
+            en: 'There are %{bikes} bikes available, with room to park %{unnocupied_stands} more',
+            es: 'Hay %{bikes} bicicletas disponibles, con espacio para aparcar %{unnocupied_stands} mas'
+        },
+        'theres %{bikes} bikes, and %{unnocupied_stands} free stands': {
+            en: 'There are %{bikes} bikes and %{unnocupied_stands} free stands.',
+            es: 'Hay %{bikes} bicicletas y %{unnocupied_stands} espacios libres para aparcar'
+        },
+        'aware, the station is currently %{status}': {
+            en: 'Be aware, the station is currently %{status}',
+            es: 'Aviso, actualmente la estacion esta %{status}'
+        },
         // Suggestion Chips and actions
         'closest available bike': {
             en: 'Closest available bike',
@@ -44,6 +64,10 @@ class TranslateService {
         'view on map': {
             en: 'View on Map',
             es: 'Ver en Mapa'
+        },
+        'distance from here': {
+            en: 'Distance from here',
+            es: 'Distancia desde aqui'
         },
         // Permission prompts
         'to do this': {

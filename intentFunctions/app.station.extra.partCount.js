@@ -1,11 +1,16 @@
 const { getPartCount } = require("./stationFunctions/extraStationDataFunctions");
 const { Suggestions } = require('actions-on-google');
-
+const stringService = require('../utils/locale');
 module.exports = async (agent) => {
     const conv = agent.conv();
-    const responseString = await getPartCount(conv);
-    conv.ask(responseString);
-    // TODO Localize
-    conv.ask(new Suggestions(['Distance from here']));
-    agent.add(conv)
+    if (conv) {
+        const responseString = await getPartCount(conv);
+        conv.ask(responseString);
+        conv.ask(new Suggestions([
+            stringService.getString('distance from here', conv.user.locale)
+        ]));
+        agent.add(conv)
+    } else {
+        agent.add('Not actions on google')
+    }
 };

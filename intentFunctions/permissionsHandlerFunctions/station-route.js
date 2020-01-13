@@ -28,7 +28,7 @@ module.exports = {
         query.destination = await getGeoCodePlace(conv.data.originalParams.destination);
         if (query.destination.error) return conv.ask(stringService.getErrorMessage(query.destination.error, conv.user.locale));
         const travelTime = await configCatClient.getValueAsync('distancematrixroute',  false);
-        const route = await getDirections(query.departure.coordinates, query.destination.coordinates, travelTime);
+        const route = await getDirections(query.departure.coordinates, query.destination.coordinates, conv.user.locale, travelTime);
         if (!route.error) {
 
             const textMessage = buildStationRouteString(route, query, conv.user.locale);
