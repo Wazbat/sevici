@@ -54,7 +54,7 @@ module.exports = {
      * @param conv Conv object
      * @param context Optional context to explain why the location is being requested
      */
-    stationSearchRequester(conv, context = null) {
+    stationSearchRequester(conv, context) {
         const finalContext = context || stringService.getString('to do this', conv.user.locale);
         const permissions = ['DEVICE_PRECISE_LOCATION'];
         // Location permissions only work for verified users

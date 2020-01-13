@@ -50,6 +50,10 @@ class TranslateService {
             en: 'To do this',
             es: 'Para hacer esto'
         },
+        'to find stations': {
+            en: 'To search for stations',
+            es: 'Para buscar estaciones'
+        },
         'to search for bikes': {
             en: 'To search for bikes',
             es: 'Para encontrar bicicletas'

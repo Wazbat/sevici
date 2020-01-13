@@ -1,5 +1,6 @@
 const { stationSearchRequester, stationSearch } = require("./permissionsHandlerFunctions/station-search");
 const { buildFilter } = require("../utils/general");
+const stringService = require('../utils/locale');
 module.exports = async (agent) => {
     const conv = agent.conv();
     if (conv) {
@@ -10,7 +11,7 @@ module.exports = async (agent) => {
         } else {
             // TODO Remove before once card query removed
             conv.data.originalParams = conv.parameters;
-            stationSearchRequester(conv);
+            stationSearchRequester(conv, stringService.getString('to find stations', conv.user.locale));
         }
         agent.add(conv)
     } else {
