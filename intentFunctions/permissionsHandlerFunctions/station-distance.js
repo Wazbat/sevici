@@ -11,7 +11,7 @@ module.exports = {
             // If the user has specified a location
             const target = await getGeoCodePlace(conv.parameters.location);
             if (target.error) {
-                return conv.ask(stringService.getErrorMessage(target.error, conv.body.queryResult.languageCode));
+                return conv.ask(stringService.getErrorMessage(target.error, conv.user.locale));
             } else {
                 query.target = target;
             }

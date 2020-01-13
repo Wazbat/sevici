@@ -4,7 +4,7 @@ const express = require('express');
 const https = require('https');
 require('dotenv').config();
 const Sentry = require('@sentry/node');
-Sentry.init({ dsn: 'https://80f5fd68f21b426b94373d99688f6c99@sentry.io/1873615' });
+Sentry.init({ dsn: process.env.SENTRYDSN });
 const io = require('@pm2/io');
 const metrics = {
     realtimeSessions: io.metric({

@@ -12,7 +12,7 @@ module.exports = {
             // If the user has specified a location
             const target = await getGeoCodePlace(conv.parameters.location);
             if (target.error) {
-                return conv.ask(stringService.getErrorMessage(target.error, conv.body.queryResult.languageCode));
+                return conv.ask(stringService.getErrorMessage(target.error, conv.user.locale));
             } else {
                 query.target = target;
             }
@@ -20,7 +20,7 @@ module.exports = {
         } else {
             // Check if user location was provided
             let {location} = conv.device;
-            if (!location) return conv.ask(`I'm sorry. I need to access your precise location to be able to search for stations relative to you. Is there anything else I can help you with?`);
+            if (!location) return conv.ask(stringService.getString('dont have location permission', conv.user.locale));
             query.target = location;
             query.target.user = true;
         }
@@ -46,7 +46,7 @@ module.exports = {
             conv.ask(generateStationCard(station, { distance, originalParams: conv.data.originalParams }));
             conv.contexts.set('station', 5, station);
         } else {
-            conv.ask(stringService.getErrorMessage('NO_STATION_RESULTS', conv.body.queryResult.languageCode));
+            conv.ask(stringService.getErrorMessage('NO_STATION_RESULTS', conv.user.locale));
         }
 
     },
