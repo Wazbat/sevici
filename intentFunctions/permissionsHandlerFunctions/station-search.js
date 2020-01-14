@@ -3,7 +3,7 @@ const seviciService = require('../../utils/sevici');
 const stringService = require('../../utils/locale');
 const { getGeoCodePlace } = require("../../utils/geo");
 const { generateStationCard, humanizeStationName, getDirection, buildStationSearchString, roundDistance} = require("../../utils/general");
-const { Permission } = require('actions-on-google');
+const { Permission, Suggestions } = require('actions-on-google');
 module.exports = {
     async stationSearch(conv) {
 
@@ -43,6 +43,10 @@ module.exports = {
             const textMessage = buildStationSearchString(humanizedName, distance, direction, query, conv.user.locale);
             conv.ask(textMessage);
             conv.ask(generateStationCard(station, conv.user.locale, { distance, originalParams: conv.data.originalParams }));
+            conv.ask(new Suggestions([
+                stringService.getString('number of bikes', conv.user.locale),
+                stringService.getString('distance from here', conv.user.locale)
+            ]));
             conv.contexts.set('station', 5, station);
         } else {
             conv.ask(stringService.getErrorMessage('NO_STATION_RESULTS', conv.user.locale));

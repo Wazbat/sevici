@@ -70,7 +70,7 @@ app.post('/chatbot/fulfillment',  (request, response) => {
         });
     }
     Sentry.configureScope(scope => {
-        scope.setTag('locale', agent.locale);
+        scope.setTag('intent', agent.intent);
         scope.setExtra('intent', agent.intent);
         scope.setExtra('action', agent.action);
         scope.setExtra('parameters', agent.parameters);

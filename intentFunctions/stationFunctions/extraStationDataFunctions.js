@@ -7,8 +7,6 @@ module.exports = {
         switch (conv.parameters.stationPart) {
             case 'dock':
             case 'free dock':
-                // TODO Localize
-
                 responseString = stringService.getString('total of %{stands} stands, with %{unnocupied_stands} unnocupied', conv.user.locale)
                     .replace('%{stands}', updatedStation.bike_stands)
                     .replace('%{unnocupied_stands}', updatedStation.available_bike_stands);
