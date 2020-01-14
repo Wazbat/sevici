@@ -60,7 +60,7 @@ module.exports = {
         // Location permissions only work for verified users
         // https://developers.google.com/actions/assistant/guest-users
         const options = {
-            finalContext,
+            context: finalContext,
             permissions,
         };
         conv.ask(new Permission(options));

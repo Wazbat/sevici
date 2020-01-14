@@ -66,7 +66,7 @@ module.exports = {
         const finalContext = context || stringService.getString('to find your distance from this station', conv.user.locale);
         const permissions = ['DEVICE_PRECISE_LOCATION'];
         const options = {
-            finalContext,
+            context: finalContext,
             permissions,
         };
         conv.ask(new Permission(options));
