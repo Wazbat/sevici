@@ -1,6 +1,5 @@
 const axios = require('axios');
 const geolib = require('geolib');
-const _ = require('lodash');
 const io = require('@pm2/io');
 const metrics = {
     seviciCallsSec: io.meter({

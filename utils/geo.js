@@ -1,4 +1,5 @@
 const moment = require('moment');
+const _ = require('lodash');
 const googleMapsClient = require('@google/maps').createClient({
     key: process.env.STATICMAPAPIKEY,
     Promise: Promise
@@ -41,9 +42,10 @@ module.exports = {
         }
         const allowed = await configCatClient.getValueAsync('geocodingglobal',  false, userObject);
         if (!allowed) return {error: 'FEATURE_NOT_ENABLED_GEOCODING'};
-        let query =  location['business-name'] || '';
-        query += ` ${location['street-address']}` || '';
-        query = query.toLowerCase();
+        let query = '';
+        if (location['business-name']) query += location['business-name'];
+        if (location['street-address']) query += ` ${location['street-address']}`;
+        query = query.trim().toLowerCase();
         if (!query) {
             console.error('Empty location', location);
             return { error: 'EMPTY_SEARCH_GEO'};
@@ -77,7 +79,7 @@ module.exports = {
             const res = {
                 // TODO Extract name properly
                 // name: response.json.results[0]['address_components'][0]['short_name'],
-                name: query,
+                name: _.capitalize(query),
                 coordinates: response.json.results[0].geometry.location,
                 timestamp: new Date().getTime(),
                 cachedUses: 0
