@@ -42,9 +42,13 @@ module.exports = {
         }
         const allowed = await configCatClient.getValueAsync('geocodingglobal',  false, userObject);
         if (!allowed) return {error: 'FEATURE_NOT_ENABLED_GEOCODING'};
+        /*
         let query = '';
         if (location['business-name']) query += location['business-name'];
         if (location['street-address']) query += ` ${location['street-address']}`;
+         */
+        // TODO Test this
+        let query = Object.values(location).join(', ');
         query = query.trim().toLowerCase();
         if (!query) {
             console.error('Empty location', location);
@@ -66,6 +70,7 @@ module.exports = {
             address: query,
             language: 'es',
             // Seville for biasing
+            // TODO Reduce bounds
             bounds: {
                 north: 37.673415,
                 south: 37.077416,
