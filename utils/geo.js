@@ -76,6 +76,9 @@ module.exports = {
         }).asPromise();
         console.log(`Got ${response.json.results.length} geocoding results for: ${query}`);
         if (response.json.results.length) {
+            // Check how far the result is from the center of seville
+            const distanceFromSeville = geolib.getDistance(response.json.results[0].geometry.location, {lat: 37.387402, lng: -5.987744});
+            if (distanceFromSeville > 20000) return { error: 'RESULT_TOO_FAR', distance : distanceFromSeville};
             const res = {
                 // TODO Extract name properly
                 // name: response.json.results[0]['address_components'][0]['short_name'],

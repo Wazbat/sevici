@@ -108,6 +108,10 @@ class TranslateService {
             en: "I'm sorry. I couldn't find anywhere in Seville that matched",
             es: "No pude encontrar ningun sitio en Sevilla que coincide"
         },
+        RESULT_TOO_FAR: {
+            en: 'I found a location that matched, however it\'s over 20km away from Seville. Try wording locations differently or manually typing your search',
+            es: 'Encontré un lugar que coincide con tu busqueda, pero esta a mas de 20km de Sevilla. Intenta decir tu busqueda de manera distinta o escribirlo manualmente'
+        },
         NO_STATION_RESULTS: {
             en: "I couldn't find any stations that mach",
             es: "Perdona. No coincide ninguna estacion con su busqueda"
