@@ -126,7 +126,7 @@ module.exports = {
             let string = `La mejor manera para llegar `;
             if (!query.departure.user) string += `desde ${query.departure.name}`;
             string += `hacia ${query.destination.name} es recojiendo uno de ${route.departureStation.available_bikes} bicis disponibles ` +
-                `de ${module.exports.humanizeStationName(route.departureStation.name)}, a ${module.exports.roundDistance(route.departureStationDistance, locale)}, luego viajar `;
+                `de ${module.exports.humanizeStationName(route.departureStation.name)}, a ${module.exports.roundDistance(route.departureStationDistance, locale)}, luego viaja `;
             if (route.matrix) string += `${route.matrix.duration} `;
             string += `hacia ${module.exports.humanizeStationName(route.destinationStation.name)} `;
             string += `y aparcar en uno de los ${route.destinationStation.available_bike_stands} sitios disponibles, ` +
