@@ -203,7 +203,7 @@ module.exports = {
         } else {
             throw new Error(`Unexpected locale code in route card generation: ${locale}`)
         }
-        if (route.matrix.warnings.length) text += route.matrix.warnings.join('  \n');
+        if (route.matrix && route.matrix.warnings.length) text += route.matrix.warnings.join('  \n');
         return new BasicCard({
             text,
             subtitle: route.matrix ? route.matrix.duration : null,
