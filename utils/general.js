@@ -227,7 +227,7 @@ module.exports = {
                         markers: `${route.departureStation.position.lat},${route.departureStation.position.lng}|` +
                             `${route.destinationStation.position.lat},${route.destinationStation.position.lng}`,
                         size: `700x300`,
-                        path: `${pathSettings}|enc:${route.matrix.points}`,
+                        path: route.matrix ? `${pathSettings}|enc:${route.matrix.points}`: null,
                         key: process.env.STATICMAPAPIKEY
                     }
                 }),
