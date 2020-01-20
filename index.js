@@ -103,17 +103,20 @@ app.post('/chatbot/fulfillment',  (request, response) => {
         });
 
 });
-let key;
-let cert;
-try {
-    key = fs.readFileSync('../httpsKeys/warren.works.key');
-    cert= fs.readFileSync('../httpsKeys/warren.works.cert');
-} catch (e) {
-    console.error(e);
+if (process.env.NODE_ENV !== 'test') {
+    let key;
+    let cert;
+    try {
+        key = fs.readFileSync('../httpsKeys/warren.works.key');
+        cert= fs.readFileSync('../httpsKeys/warren.works.cert');
+    } catch (e) {
+        console.error(e);
+    }
+    https.createServer({
+        key: key,
+        cert: cert
+    }, app).listen(3002, () => {
+        console.log('Server running on port 3002');
+    });
 }
-https.createServer({
-    key: key,
-    cert: cert
-}, app).listen(3002, () => {
-    console.log('Server running on port 3002');
-});
+

@@ -32,6 +32,13 @@ const metrics = {
 const geoCache = new Map();
 const directionsCache = new Map();
 module.exports = {
+    /**
+     *
+      * @param location
+     * @param locale
+     * @param sessionID
+     * @returns {Promise<{error: string}|{distance: *, error: string}|any|{name: *, coordinates: *, cachedUses: number, timestamp: *}>}
+     */
     async getGeoCodePlace(location, locale, sessionID = null) {
         let userObject;
         if (sessionID) {
@@ -47,13 +54,21 @@ module.exports = {
         if (location['business-name']) query += location['business-name'];
         if (location['street-address']) query += ` ${location['street-address']}`;
          */
-        // TODO Test this
-        let query = Object.values(location).join(', ');
-        query = query.trim().toLowerCase();
-        if (!query) {
-            console.error('Empty location', location);
-            return { error: 'EMPTY_SEARCH_GEO'};
+
+        let query = '';
+        if (typeof location === 'string') {
+            query = location.trim().toLowerCase()
+        } else if (typeof location === 'object' && location !== null) {
+            query = Object.values(location).join(', ');
+            query = query.trim().toLowerCase();
+            if (!query) {
+                console.error('Empty location', location);
+                return { error: 'EMPTY_SEARCH_GEO'};
+            }
+        } else {
+            throw new TypeError('Invalid location type in geo search. Must be object or string')
         }
+
         // Return cached query if it's less than a set time ago
         const cached = geoCache.get(query);
         if (cached && moment(cached.timestamp).isAfter(moment().subtract(20, 'days'))) {
