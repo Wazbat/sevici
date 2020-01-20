@@ -47,7 +47,7 @@ module.exports = {
                 country: stringService.getLocale(locale) || null
             }
         }
-        const allowed = await configCatClient.getValueAsync('geocodingglobal',  false, userObject);
+        const allowed = await configCatClient.getValueAsync('geocodingApiGlobal',  false, userObject);
         if (!allowed) return {error: 'FEATURE_NOT_ENABLED_GEOCODING'};
         /*
         let query = '';
@@ -146,21 +146,23 @@ module.exports = {
         }
         let matrix;
         // TODO Implement user objects for user targeting
-        if (travelTime && await configCatClient.getValueAsync('distancematrixglobal',  false, userObject)) {
+        if (travelTime && await configCatClient.getValueAsync('navigationApiGlobal',  false, userObject)) {
             const query = {
-                origins: [departureStation.position],
-                destinations: [destinationStation.position],
+                origin: departureStation.position,
+                destination: destinationStation.position,
                 mode: 'bicycling',
                 units: 'metric',
                 language: stringService.getLocale(locale) || 'en',
                 timeout: 1500
             };
-            const response = await googleMapsClient.distanceMatrix(query).asPromise();
-            const result = response.json.rows[0];
-            if (result.status !== 'OK') {
+            const response = await googleMapsClient.directions(query).asPromise();
+            const result = response.json;
+            if (response.status === 200 || true) {
                 matrix = {
-                    distance: response.json.rows[0].elements[0].distance.text,
-                    duration: response.json.rows[0].elements[0].duration.text,
+                    distance: result.routes[0].legs[0].distance.text,
+                    duration: result.routes[0].legs[0].duration.text,
+                    points: result.routes[0].overview_polyline.points,
+                    warnings: result.routes[0].warnings
                 }
             }
         }

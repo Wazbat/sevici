@@ -33,16 +33,20 @@ module.exports = {
             country: stringService.getLocale(conv.user.locale)
         };
 
-        const travelTime = await configCatClient.getValueAsync('distancematrixroute',  false, userObject);
-        const route = await getDirections(query.departure.coordinates, query.destination.coordinates, conv.user.locale, conv.body.session, travelTime);
+        const [travelTimeEnabled, pathSettings] = await Promise.all([
+            configCatClient.getValueAsync('navigationRouteEnabled',  false, userObject),
+            configCatClient.getValueAsync('navigationPathParams',  null, userObject)
+            ]);
+        const route = await getDirections(query.departure.coordinates, query.destination.coordinates, conv.user.locale, conv.body.session, travelTimeEnabled);
         if (!route.error) {
 
             const textMessage = buildStationRouteString(route, query, conv.user.locale);
             conv.ask(textMessage);
-            conv.ask(generateRouteCard(route, conv.user.locale));
+            conv.ask(generateRouteCard(route, conv.user.locale, pathSettings));
             conv.contexts.set('route', 5, {
                 departureStation: route.departureStation,
-                destinationStation: route.destinationStation
+                destinationStation: route.destinationStation,
+                matrix: route.matrix
             });
         } else {
             conv.ask(stringService.getErrorMessage(route.error, conv.user.locale));

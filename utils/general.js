@@ -187,23 +187,23 @@ module.exports = {
             display: 'CROPPED',
         })
     },
-    generateRouteCard(route, locale) {
-
+    generateRouteCard(route, locale, pathSettings = 'weight:5|color:0x4597FFFF') {
         let text = '';
         const localeCode = stringService.getLocale(locale);
         if (localeCode === 'en') {
             text = `Departure: **${module.exports.humanizeStationName(route.departureStation.name)}**  \n
             Available bikes: **${route.departureStation.available_bikes}**  \n
             Destination: **${module.exports.humanizeStationName(route.destinationStation.name)}**  \n
-            Available stands: **${route.departureStation.available_bike_stands}** \n`;
+            Available stands: **${route.departureStation.available_bike_stands}**  \n`;
         } else if (localeCode === 'es') {
             text = `Salida: **${module.exports.humanizeStationName(route.departureStation.name)}**  \n
             Bicis disponibles: **${route.departureStation.available_bikes}**  \n
             Destino: **${module.exports.humanizeStationName(route.destinationStation.name)}**  \n
-            Aparcamientos disponibles: **${route.departureStation.available_bike_stands}** \n`;
+            Aparcamientos disponibles: **${route.departureStation.available_bike_stands}**  \n`;
         } else {
             throw new Error(`Unexpected locale code in route card generation: ${locale}`)
         }
+        if (route.matrix.warnings.length) text += route.matrix.warnings.join('  \n');
         return new BasicCard({
             text,
             subtitle: route.matrix ? route.matrix.duration : null,
@@ -227,6 +227,7 @@ module.exports = {
                         markers: `${route.departureStation.position.lat},${route.departureStation.position.lng}|` +
                             `${route.destinationStation.position.lat},${route.destinationStation.position.lng}`,
                         size: `700x300`,
+                        path: `${pathSettings}|enc:${route.matrix.points}`,
                         key: process.env.STATICMAPAPIKEY
                     }
                 }),
