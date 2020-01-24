@@ -47,8 +47,10 @@ intentFunctions.set('Place Handler', (agent) => {
     }
 
 });
-
-app.post('/chatbot/fulfillment',  async (request, response) => {
+app.get('/', (request, response) => {
+   response.code(418).send('Fulfillment Online');
+});
+app.post('/chatbot/fulfillment',  (request, response) => {
     // metrics.requests.mark();
     let agent;
     try {

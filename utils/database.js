@@ -35,5 +35,5 @@ class Database {
     }
 
 }
-// TODO Make singleton
+
 module.exports = new Database();

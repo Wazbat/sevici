@@ -32,8 +32,10 @@ class SeviciService {
      */
     async searchStation(query) {
         if (!query.target || !query.target.coordinates) throw new TypeError('Missing query target');
+        /*
         metrics.seviciCallsSec.mark();
         metrics.seviciCallsTotal.inc();
+         */
         let { data:stations } = await axios.get('https://api.jcdecaux.com/vls/v1/stations', {
             params: {
                 apiKey: this.apiKey,
@@ -61,8 +63,10 @@ class SeviciService {
 
     }
     async searchStations(query) {
+        /*
         metrics.seviciCallsSec.mark();
         metrics.seviciCallsTotal.inc();
+         */
         let { data:stations } = await axios.get('https://api.jcdecaux.com/vls/v1/stations', {
             params: {
                 apiKey: this.apiKey,
@@ -98,8 +102,10 @@ class SeviciService {
     }
     async getStationByID(stationNumber) {
         try {
+            /*
             metrics.seviciCallsSec.mark();
             metrics.seviciCallsTotal.inc();
+             */
             let { data:station } = await axios.get(`https://api.jcdecaux.com/vls/v1/stations/${stationNumber}`, {
                 params: {
                     apiKey: this.apiKey,
@@ -115,5 +121,4 @@ class SeviciService {
 
 }
 
-// TODO Make singleton
 module.exports = new SeviciService();
