@@ -160,7 +160,7 @@ class UtilsService {
         }
         const humanizedName = this.humanizeStationName(station.name);
         if (data.originalParams && data.originalParams.criteria) text += `Query: **${data.originalParams.criteria.join(' ')}**`;
-        const credentials = databaseService.getCredentials();
+        const credentials = await databaseService.getCredentials();
         return new BasicCard({
             text,
             // subtitle: 'This is a subtitle',

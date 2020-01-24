@@ -5,7 +5,6 @@ const featureFlagService = require('../../utils/featureFlags');
 const geoService = require('../../utils/geo');
 const utilsService = require('../../utils/general');
 const { Permission } = require('actions-on-google');
-featureFlagService.getValue('navigationPathParams',  null, null).then(console.log).catch(console.log)
 module.exports = {
     async routeSearch(conv) {
         const query = {};
