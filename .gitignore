@@ -90,3 +90,6 @@ typings/
 .dynamodb/
 
 .idea
+
+# Service accounts
+sevici-*.json

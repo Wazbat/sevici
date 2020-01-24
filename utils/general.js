@@ -4,8 +4,8 @@ const seviciService = require('./sevici');
 const stringService = require('./locale');
 const buildUrl = require('build-url');
 const { BasicCard, Button, Image }  = require("actions-on-google");
-
-module.exports = {
+const databaseService = require('./database');
+class UtilsService {
     // TODO Convert to class
     /**
      * Builds a object with optional properties that are later used to search
@@ -20,7 +20,7 @@ module.exports = {
         if (criteria.includes('with free dock')) query.freeParking = true;
         if (criteria.includes('without free dock')) query.freeParking = false;
         return query;
-    },
+    }
     /**
      * Returns direction of destination coordinates as a long string.
      * Examples: northwest, eastnortheast, south, northnorthwest
@@ -49,7 +49,7 @@ module.exports = {
         const letters = direction.split('');
         const words = letters.map(letter => directionStrings[letter]);
         return words.join('');
-    },
+    }
     /**
      * Builds a first response string using the provided data
      * Used when searching for a station
@@ -77,7 +77,7 @@ module.exports = {
                 if (query.freeBikes || query.freeBikes === false) string += ' and ';
                 string += 'without any space to park';
             }
-            const distanceString = module.exports.roundDistance(distance, locale);
+            const distanceString = this.roundDistance(distance, locale);
             string += ` is ${name}, ${distanceString} away to the ${direction}`;
             return string;
         } else if (localeCode === 'es') {
@@ -96,48 +96,48 @@ module.exports = {
                 if (query.freeBikes || query.freeBikes === false) string += ' y ';
                 string += 'sin espacio para aparcar';
             }
-            const distanceString = module.exports.roundDistance(distance, locale);
+            const distanceString = this.roundDistance(distance, locale);
             string += ` es ${name}, a ${distanceString} hacia el ${direction}`;
             return string;
         } else {
             throw new Error(`Unexpected locale code in station search string generation: ${locale}`)
         }
 
-    },
+    }
     buildStationDetailsString(station, locale) {
         return stringService.getString('%{station} has ${bikeCount} bikes available and ${standCount} spaces to park', locale)
-            .replace('%{station}', module.exports.humanizeStationName(station.name))
+            .replace('%{station}', this.humanizeStationName(station.name))
             .replace('%{bikeCount}', station.available_bikes)
             .replace('%{standCount}', station.available_bike_stands);
-    },
+    }
     buildStationRouteString(route, query, locale) {
         const localeCode = stringService.getLocale(locale);
         if (localeCode === 'en') {
             let string = `The best way to get `;
             if (!query.departure.user) string += `from ${query.departure.name} `;
             string += `to ${query.destination.name} is by collecting one of ${route.departureStation.available_bikes} bikes ` +
-                `from ${module.exports.humanizeStationName(route.departureStation.name)}, ${module.exports.roundDistance(route.departureStationDistance, locale)} away, then cycling `;
+                `from ${this.humanizeStationName(route.departureStation.name)}, ${this.roundDistance(route.departureStationDistance, locale)} away, then cycling `;
             if (route.matrix) string += `${route.matrix.duration} `;
-            string += `to ${module.exports.humanizeStationName(route.destinationStation.name)} `;
+            string += `to ${this.humanizeStationName(route.destinationStation.name)} `;
             string += `and parking at one of the ${route.destinationStation.available_bike_stands} available spots, ` +
-                `${module.exports.roundDistance(route.destinationStationDistance, locale)} away from ${query.destination.name}`;
+                `${this.roundDistance(route.destinationStationDistance, locale)} away from ${query.destination.name}`;
             return string;
         } else if (localeCode === 'es') {
             let string = `La mejor manera para llegar `;
             if (!query.departure.user) string += `desde ${query.departure.name}`;
             string += `hacia ${query.destination.name} es recojiendo uno de ${route.departureStation.available_bikes} bicis disponibles ` +
-                `de ${module.exports.humanizeStationName(route.departureStation.name)}, a ${module.exports.roundDistance(route.departureStationDistance, locale)}, luego viaja `;
+                `de ${this.humanizeStationName(route.departureStation.name)}, a ${this.roundDistance(route.departureStationDistance, locale)}, luego viaja `;
             if (route.matrix) string += `${route.matrix.duration} `;
-            string += `hacia ${module.exports.humanizeStationName(route.destinationStation.name)} `;
+            string += `hacia ${this.humanizeStationName(route.destinationStation.name)} `;
             string += `y aparcar en uno de los ${route.destinationStation.available_bike_stands} sitios disponibles, ` +
-                `a ${module.exports.roundDistance(route.destinationStationDistance, locale)} de ${query.destination.name}`;
+                `a ${this.roundDistance(route.destinationStationDistance, locale)} de ${query.destination.name}`;
             return string;
         } else {
             throw new Error(`Unexpected locale code in route string generation: ${locale}`)
         }
 
-    },
-    generateStationCard(station, locale, data = {}) {
+    }
+    async generateStationCard(station, locale, data = {}) {
         const localeCode = stringService.getLocale(locale);
         let text = '';
         if (localeCode === 'en') {
@@ -157,8 +157,9 @@ module.exports = {
         } else {
             throw new Error(`Unexpected locale code in station card generation: ${locale}`)
         }
-        const humanizedName = module.exports.humanizeStationName(station.name);
+        const humanizedName = this.humanizeStationName(station.name);
         if (data.originalParams && data.originalParams.criteria) text += `Query: **${data.originalParams.criteria.join(' ')}**`;
+        const credentials = databaseService.getCredentials();
         return new BasicCard({
             text,
             // subtitle: 'This is a subtitle',
@@ -179,34 +180,36 @@ module.exports = {
                     queryParams: {
                         markers: `${station.position.lat},${station.position.lng}`,
                         size: `700x300`,
-                        key: process.env.STATICMAPAPIKEY
+                        key: credentials.GOOGLEMAPS
                     }
                 }),
                 alt: 'dock location',
             }),
             display: 'CROPPED',
         })
-    },
-    generateRouteCard(route, locale, pathSettings = 'weight:5|color:0x4597FFFF') {
+    }
+    async generateRouteCard(route, locale, pathSettings = 'weight:5|color:0x4597FFFF') {
+
         let text = '';
         const localeCode = stringService.getLocale(locale);
         if (localeCode === 'en') {
-            text = `Departure: **${module.exports.humanizeStationName(route.departureStation.name)}**  \n
+            text = `Departure: **${this.humanizeStationName(route.departureStation.name)}**  \n
             Available bikes: **${route.departureStation.available_bikes}**  \n
-            Destination: **${module.exports.humanizeStationName(route.destinationStation.name)}**  \n
+            Destination: **${this.humanizeStationName(route.destinationStation.name)}**  \n
             Available stands: **${route.departureStation.available_bike_stands}**  \n`;
         } else if (localeCode === 'es') {
-            text = `Salida: **${module.exports.humanizeStationName(route.departureStation.name)}**  \n
+            text = `Salida: **${this.humanizeStationName(route.departureStation.name)}**  \n
             Bicis disponibles: **${route.departureStation.available_bikes}**  \n
-            Destino: **${module.exports.humanizeStationName(route.destinationStation.name)}**  \n
-            Aparcamientos disponibles: **${route.departureStation.available_bike_stands}**  \n`;
+            Destino: **${this.humanizeStationName(route.destinationStation.name)}**  \n
+            Aparcamientos disponibles: **${route.destinationStation.available_bike_stands}**  \n`;
         } else {
             throw new Error(`Unexpected locale code in route card generation: ${locale}`)
         }
         if (route.matrix && route.matrix.warnings.length) text += route.matrix.warnings.join('  \n');
+        const credentials = await databaseService.getCredentials();
         return new BasicCard({
             text,
-            subtitle: route.matrix ? route.matrix.duration : null,
+            subtitle: route.matrix ? `${route.matrix.duration} - ${route.matrix.distance}`: null,
             title: 'Route',
             buttons: [
                 new Button({
@@ -228,14 +231,14 @@ module.exports = {
                             `${route.destinationStation.position.lat},${route.destinationStation.position.lng}`,
                         size: `700x300`,
                         path: route.matrix ? `${pathSettings}|enc:${route.matrix.points}`: null,
-                        key: process.env.STATICMAPAPIKEY
+                        key: credentials.GOOGLEMAPS
                     }
                 }),
                 alt: 'route',
             }),
             display: 'CROPPED',
         })
-    },
+    }
     /**
      * Update the conv object context with the station context of the requested station. To be called in any function that already has the station context and doesn't change it.
      * Returns the updated station
@@ -249,7 +252,7 @@ module.exports = {
         const updatedStation = await seviciService.getStationByID(oldStation.number);
         conv.contexts.set('station', 5, updatedStation);
         return updatedStation;
-    },
+    }
     /**
      * Update the route object context with the updated versions of the previous stations To be called in any function that already has the rotue context and doesn't change it.
      * Returns the updated station
@@ -271,7 +274,7 @@ module.exports = {
         };
         conv.contexts.set('route', 5, newRoute);
         return newRoute;
-    },
+    }
     /**
      * Takes a number, the distance in meters. Rounds to kilometers if greater than 999.
      * Example responses:
@@ -293,7 +296,7 @@ module.exports = {
         if (distance > 999) return `${_.round(distance/1000, 1)} ${units.km}`;
         return `${distance} ${units.m}`;
 
-    },
+    }
     /**
      * Convert sevici station names into a human readable format
      * @param name {string}
@@ -306,3 +309,5 @@ module.exports = {
         return humanizedName;
     }
 };
+
+module.exports = new UtilsService();

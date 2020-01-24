@@ -1,8 +1,7 @@
-const configcat = require("configcat-node");
-const configCatClient = configcat.createClient(process.env.CONFIGCATKEY);
 const geolib = require('geolib');
 const seviciService = require('../../utils/sevici');
 const stringService = require('../../utils/locale');
+const featureFlagService = require('../../utils/featureFlags');
 const { getGeoCodePlace, getDirections } = require("../../utils/geo");
 const { buildStationRouteString, generateRouteCard } = require("../../utils/general");
 const { Permission } = require('actions-on-google');
@@ -34,15 +33,16 @@ module.exports = {
         };
 
         const [travelTimeEnabled, pathSettings] = await Promise.all([
-            configCatClient.getValueAsync('navigationRouteEnabled',  false, userObject),
-            configCatClient.getValueAsync('navigationPathParams',  null, userObject)
+            featureFlagService.getValue('navigationRouteEnabled',  false, userObject),
+            featureFlagService.getValue('navigationPathParams',  null, userObject)
             ]);
         const route = await getDirections(query.departure.coordinates, query.destination.coordinates, conv.user.locale, conv.body.session, travelTimeEnabled);
         if (!route.error) {
 
             const textMessage = buildStationRouteString(route, query, conv.user.locale);
             conv.ask(textMessage);
-            conv.ask(generateRouteCard(route, conv.user.locale, pathSettings));
+            const routeCard = await generateRouteCard(route, conv.user.locale, pathSettings);
+            conv.ask(routeCard);
             conv.contexts.set('route', 5, {
                 departureStation: route.departureStation,
                 destinationStation: route.destinationStation,

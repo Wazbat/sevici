@@ -1,5 +1,6 @@
 const axios = require('axios');
 const geolib = require('geolib');
+/*
 const io = require('@pm2/io');
 const metrics = {
     seviciCallsSec: io.meter({
@@ -11,10 +12,13 @@ const metrics = {
         id: 'app/api/total/requests'
     }),
 };
-
-class Sevici {
-    constructor(key) {
+ */
+const db = require('./database');
+class SeviciService {
+    constructor(key = '') {
         this.apiKey = key;
+        db.getCredentials().then(credentials => this.apiKey = credentials.JCDECAUX);
+        console.log('New Sevici service loaded')
     }
 
     /**
@@ -111,4 +115,5 @@ class Sevici {
 
 }
 
-module.exports = new Sevici(process.env.JCDECAUXAPIKEY);
+// TODO Make singleton
+module.exports = new SeviciService();

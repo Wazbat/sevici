@@ -1,37 +1,37 @@
 const moment = require('moment');
 const _ = require('lodash');
-const googleMapsClient = require('@google/maps').createClient({
-    key: process.env.STATICMAPAPIKEY,
-    Promise: Promise
-});
+const db = require('./database');
+const featureFlagService = require('./featureFlags');
+const gmaps = require('@google/maps');
+
 const seviciService = require('./sevici');
 const geolib = require('geolib');
-const configcat = require("configcat-node");
-const configCatClient = configcat.createClient(process.env.CONFIGCATKEY);
-const io = require('@pm2/io');
+
 const stringService = require("./locale");
-const metrics = {
-    geocodingCallsSec: io.meter({
-        name: 'geocodingCalls/sec',
-        id: 'app/geocoding/realtime/requests'
-    }),
-    geocodingCallsTotal: io.counter({
-        name: 'Total geocoding calls',
-        id: 'app/geocoding/total/requests'
-    }),
-    cachedCallsSec: io.meter({
-        name: 'geocodingCalls/sec',
-        id: 'app/geocoding/realtime/requests'
-    }),
-    cachedCallsTotal: io.counter({
-        name: 'Total geocoding calls',
-        id: 'app/geocoding/total/requests'
-    }),
-};
-// Allowed in https://cloud.google.com/maps-platform/terms/maps-service-terms/ Point 3.4
-const geoCache = new Map();
-const directionsCache = new Map();
-module.exports = {
+
+
+class GeoService {
+    constructor() {
+        // Allowed in https://cloud.google.com/maps-platform/terms/maps-service-terms/ Point 3.4
+        // Used to improve performance
+        this.geoCache = new Map();
+        this.directionsCache = new Map();
+        this.ready = new Promise((resolve, reject) => {
+            try {
+                db.getCredentials().then(credentials => {
+                    this.googleMapsClient = gmaps.createClient({
+                        key: credentials.GOOGLEMAPS,
+                        Promise: Promise
+                    });
+                });
+                resolve();
+            } catch (e) {
+                reject(e);
+                throw e;
+            }
+        });
+        console.log('Geo Service loaded');
+    }
     /**
      *
       * @param location
@@ -40,6 +40,7 @@ module.exports = {
      * @returns {Promise<{error: string}|{distance: *, error: string}|any|{name: *, coordinates: *, cachedUses: number, timestamp: *}>}
      */
     async getGeoCodePlace(location, locale, sessionID = null) {
+        await this.ready;
         let userObject;
         if (sessionID) {
             userObject = {
@@ -47,7 +48,7 @@ module.exports = {
                 country: stringService.getLocale(locale) || null
             }
         }
-        const allowed = await configCatClient.getValueAsync('geocodingApiGlobal',  false, userObject);
+        const allowed = await featureFlagService.getValue('geocodingApiGlobal',  false, userObject);
         if (!allowed) return {error: 'FEATURE_NOT_ENABLED_GEOCODING'};
         /*
         let query = '';
@@ -70,18 +71,23 @@ module.exports = {
         }
 
         // Return cached query if it's less than a set time ago
-        const cached = geoCache.get(query);
+        const cached = this.geoCache.get(query);
         if (cached && moment(cached.timestamp).isAfter(moment().subtract(20, 'days'))) {
+            /*
             metrics.cachedCallsSec.mark();
             metrics.cachedCallsTotal.inc();
+             */
             cached.cachedUses++;
-            geoCache.set(query, cached);
+            this.geoCache.set(query, cached);
             console.log(`Returned cached result for "${query}". Cached uses: ${cached.cachedUses}`);
             return cached;
         }
+        /*
+        TODO Reimplement metrics using stackdriver metrics
         metrics.geocodingCallsTotal.inc();
         metrics.geocodingCallsSec.mark();
-        const response = await googleMapsClient.geocode({
+         */
+        const response = await this.googleMapsClient.geocode({
             address: query,
             language: 'es',
             // Seville for biasing
@@ -107,13 +113,14 @@ module.exports = {
                 timestamp: new Date().getTime(),
                 cachedUses: 0
             };
-            geoCache.set(query, res);
+            this.geoCache.set(query, res);
             return res;
         }
         return { error: 'NO_RESULTS_GEO'}
-    },
+    }
 
     async getDirections(start, end, locale, sessionID = null, travelTime = false) {
+        await this.ready;
         let userObject;
         if (sessionID) {
             userObject = {
@@ -137,16 +144,16 @@ module.exports = {
         ]);
         if (!departureStation || !destinationStation) return { error: 'NO_STATION_RESULTS' };
         const key = JSON.stringify({start, end});
-        const cached = directionsCache.get(key);
+        const cached = this.directionsCache.get(key);
         if (cached) {
             cached.cachedUses++;
-            directionsCache.set(key, cached);
+            this.directionsCache.set(key, cached);
             console.log('Returning cached directions');
             return cached;
         }
         let matrix;
         // TODO Implement user objects for user targeting
-        if (travelTime && await configCatClient.getValueAsync('navigationApiGlobal',  false, userObject)) {
+        if (travelTime && await featureFlagService.getValue('navigationApiGlobal',  false, userObject)) {
             const query = {
                 origin: departureStation.position,
                 destination: destinationStation.position,
@@ -155,7 +162,7 @@ module.exports = {
                 language: stringService.getLocale(locale) || 'en',
                 timeout: 1500
             };
-            const response = await googleMapsClient.directions(query).asPromise();
+            const response = await this.googleMapsClient.directions(query).asPromise();
             const result = response.json;
             if (response.status === 200 || true) {
                 matrix = {
@@ -175,8 +182,10 @@ module.exports = {
             timestamp: new Date().getTime(),
             cachedUses: 0
         };
-        directionsCache.set(key, response);
+        this.directionsCache.set(key, response);
         return response;
 
     }
-};
+}
+
+module.exports = new GeoService();
