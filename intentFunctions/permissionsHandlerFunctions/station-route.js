@@ -42,8 +42,7 @@ module.exports = {
 
             const textMessage = utilsService.buildStationRouteString(route, query, conv.user.locale);
             conv.ask(textMessage);
-            const routeCard = await utilsService.generateRouteCard(route, conv.user.locale, pathSettings);
-            conv.ask(routeCard);
+            conv.ask(await utilsService.generateRouteCard(route, conv.user.locale, pathSettings));
             conv.contexts.set('route', 5, {
                 departureStation: route.departureStation,
                 destinationStation: route.destinationStation,

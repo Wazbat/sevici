@@ -42,7 +42,7 @@ module.exports = {
 
             const textMessage = utilsService.buildStationSearchString(humanizedName, distance, direction, query, conv.user.locale);
             conv.ask(textMessage);
-            conv.ask(utilsService.generateStationCard(station, conv.user.locale, { distance, originalParams: conv.data.originalParams }));
+            conv.ask(await utilsService.generateStationCard(station, conv.user.locale, { distance, originalParams: conv.data.originalParams }));
             conv.ask(new Suggestions([
                 stringService.getString('number of bikes', conv.user.locale),
                 stringService.getString('distance from here', conv.user.locale)
