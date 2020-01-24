@@ -1,8 +1,8 @@
-const { updateStationContext } = require("../../utils/general");
+const utilsService = require("../../utils/general");
 const stringService = require('../../utils/locale');
 module.exports = {
     async getPartCount (conv) {
-        const updatedStation = await updateStationContext(conv);
+        const updatedStation = await utilsService.updateStationContext(conv);
         let responseString = '';
         switch (conv.parameters.stationPart) {
             case 'dock':

@@ -1,10 +1,10 @@
 const { stationSearchRequester, stationSearch } = require("./permissionsHandlerFunctions/station-search");
-const { buildFilter } = require("../utils/general");
+const utilsService = require("../utils/general");
 const stringService = require('../utils/locale');
 module.exports = async (agent) => {
     const conv = agent.conv();
     if (conv) {
-        conv.data.filter = buildFilter(conv.parameters.criteria);
+        conv.data.filter = utilsService.buildFilter(conv.parameters.criteria);
         if (conv.parameters.location) {
             // If a location is specified
             await stationSearch(conv)

@@ -1,8 +1,8 @@
 const geolib = require('geolib');
 const seviciService = require('../../utils/sevici');
 const stringService = require('../../utils/locale');
-const { getGeoCodePlace } = require("../../utils/geo");
-const { generateStationCard, humanizeStationName, getDirection, buildStationSearchString, roundDistance} = require("../../utils/general");
+const geoService = require('../../utils/geo');
+const utilsService = require("../../utils/general");
 const { Permission, Suggestions } = require('actions-on-google');
 module.exports = {
     async stationSearch(conv) {
@@ -10,7 +10,7 @@ module.exports = {
         const query = conv.data.filter;
         if (conv.parameters.location) {
             // If the user has specified a location
-            const target = await getGeoCodePlace(conv.parameters.location, conv.user.locale, conv.body.session);
+            const target = await geoService.getGeoCodePlace(conv.parameters.location, conv.user.locale, conv.body.session);
             if (target.error) {
                 return conv.ask(stringService.getErrorMessage(target.error, conv.user.locale));
             } else {
@@ -36,13 +36,13 @@ module.exports = {
         const station = await seviciService.searchStation(query);
         if (station) {
             const distance = geolib.getDistance(query.target.coordinates, station.position);
-            const direction = getDirection(query.target.coordinates, station.position, conv.user.locale);
+            const direction = utilsService.getDirection(query.target.coordinates, station.position, conv.user.locale);
 
-            const humanizedName = humanizeStationName(station.name);
+            const humanizedName = utilsService.humanizeStationName(station.name);
 
-            const textMessage = buildStationSearchString(humanizedName, distance, direction, query, conv.user.locale);
+            const textMessage = utilsService.buildStationSearchString(humanizedName, distance, direction, query, conv.user.locale);
             conv.ask(textMessage);
-            conv.ask(generateStationCard(station, conv.user.locale, { distance, originalParams: conv.data.originalParams }));
+            conv.ask(utilsService.generateStationCard(station, conv.user.locale, { distance, originalParams: conv.data.originalParams }));
             conv.ask(new Suggestions([
                 stringService.getString('number of bikes', conv.user.locale),
                 stringService.getString('distance from here', conv.user.locale)

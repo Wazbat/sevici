@@ -3,7 +3,6 @@ const configcat = require('configcat-node');
 class FeatureFlagService {
 
     constructor() {
-
         // I wish I could just store credentials in an env variable and be done with it ;_;
         this.ready = new Promise((resolve, reject) => {
             try {
@@ -16,12 +15,11 @@ class FeatureFlagService {
                 throw e;
             }
         });
-
-
     }
 
-    async getValue(key, defaultValue, userObject = null) {
-        return this.configCatClient.getValueAsync(key,  defaultValue, userObject)
+     async getValue(key, defaultValue, userObject = null) {
+        await this.ready;
+        return await this.configCatClient.getValueAsync(key,  defaultValue, userObject)
     }
 
 }

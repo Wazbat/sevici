@@ -1,15 +1,15 @@
-const { updateStationContext, roundDistance, humanizeStationName, getDirection } = require("../../utils/general");
+const utilsService = require("../../utils/general");
 const stringService = require('../../utils/locale');
 const geolib = require('geolib');
 const { Permission, LinkOutSuggestion, Suggestions } = require('actions-on-google');
 const buildUrl = require('build-url');
-const {getGeoCodePlace} = require("../../utils/geo");
+const geoService = require("../../utils/geo");
 module.exports = {
     async stationDistance (conv) {
         let query = {};
         if (conv.parameters.location) {
             // If the user has specified a location
-            const target = await getGeoCodePlace(conv.parameters.location, conv.user.locale, conv.body.session);
+            const target = await geoService.getGeoCodePlace(conv.parameters.location, conv.user.locale, conv.body.session);
             if (target.error) {
                 return conv.ask(stringService.getErrorMessage(target.error, conv.user.locale));
             } else {
@@ -31,21 +31,21 @@ module.exports = {
           }
          */
 
-        const station = await updateStationContext(conv);
+        const station = await utilsService.updateStationContext(conv);
         const distance = geolib.getDistance(query.target.coordinates, station.position);
         let response = '';
         if (query.target.name) {
             response = stringService.getString('%{station} is %{distance} away to the %{direction} from %{target}')
-                .replace('%{station}', humanizeStationName(station.name))
-                .replace('%{distance}',roundDistance(distance, conv.user.locale))
-                .replace('%{direction}', getDirection(query.target.coordinates, station.position))
+                .replace('%{station}', utilsService.humanizeStationName(station.name))
+                .replace('%{distance}',utilsService.roundDistance(distance, conv.user.locale))
+                .replace('%{direction}', utilsService.getDirection(query.target.coordinates, station.position))
                 .replace('%{target}', query.target.name);
         } else {
             // TODO Implement this properly... Dummy
             response = stringService.getString('%{station} is %{distance} away to the %{direction}')
-                .replace('%{station}', humanizeStationName(station.name))
-                .replace('%{distance}',roundDistance(distance, conv.user.locale))
-                .replace('%{direction}', getDirection(query.target.coordinates, station.position))
+                .replace('%{station}', utilsService.humanizeStationName(station.name))
+                .replace('%{distance}',utilsService.roundDistance(distance, conv.user.locale))
+                .replace('%{direction}', utilsService.getDirection(query.target.coordinates, station.position))
         }
         conv.ask(response);
         conv.ask(new Suggestions([

@@ -57,6 +57,7 @@ class UtilsService {
      * @param distance
      * @param direction
      * @param query
+     * @param locale
      * @returns {string}
      */
     buildStationSearchString(name, distance, direction, query, locale) {

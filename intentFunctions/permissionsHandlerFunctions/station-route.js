@@ -2,15 +2,16 @@ const geolib = require('geolib');
 const seviciService = require('../../utils/sevici');
 const stringService = require('../../utils/locale');
 const featureFlagService = require('../../utils/featureFlags');
-const { getGeoCodePlace, getDirections } = require("../../utils/geo");
-const { buildStationRouteString, generateRouteCard } = require("../../utils/general");
+const geoService = require('../../utils/geo');
+const utilsService = require('../../utils/general');
 const { Permission } = require('actions-on-google');
+featureFlagService.getValue('navigationPathParams',  null, null).then(console.log).catch(console.log)
 module.exports = {
     async routeSearch(conv) {
         const query = {};
         if (conv.data.originalParams.departure) {
             // If the user has specified a departure that isn't them
-            const target = await getGeoCodePlace(conv.data.originalParams.departure, conv.user.locale, conv.body.session);
+            const target = await geoService.getGeoCodePlace(conv.data.originalParams.departure, conv.user.locale, conv.body.session);
             if (target.error) {
                 return conv.ask(stringService.getErrorMessage(target.error, conv.user.locale));
             } else {
@@ -24,7 +25,7 @@ module.exports = {
             query.departure = location;
             query.departure.user = true;
         }
-        query.destination = await getGeoCodePlace(conv.data.originalParams.destination, conv.user.locale, conv.body.session);
+        query.destination = await geoService.getGeoCodePlace(conv.data.originalParams.destination, conv.user.locale, conv.body.session);
         if (query.destination.error) return conv.ask(stringService.getErrorMessage(query.destination.error, conv.user.locale));
 
         const userObject = {
@@ -36,12 +37,12 @@ module.exports = {
             featureFlagService.getValue('navigationRouteEnabled',  false, userObject),
             featureFlagService.getValue('navigationPathParams',  null, userObject)
             ]);
-        const route = await getDirections(query.departure.coordinates, query.destination.coordinates, conv.user.locale, conv.body.session, travelTimeEnabled);
+        const route = await geoService.getDirections(query.departure.coordinates, query.destination.coordinates, conv.user.locale, conv.body.session, travelTimeEnabled);
         if (!route.error) {
 
-            const textMessage = buildStationRouteString(route, query, conv.user.locale);
+            const textMessage = utilsService.buildStationRouteString(route, query, conv.user.locale);
             conv.ask(textMessage);
-            const routeCard = await generateRouteCard(route, conv.user.locale, pathSettings);
+            const routeCard = await utilsService.generateRouteCard(route, conv.user.locale, pathSettings);
             conv.ask(routeCard);
             conv.contexts.set('route', 5, {
                 departureStation: route.departureStation,
