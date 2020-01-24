@@ -60,7 +60,8 @@ class GeoService {
         if (typeof location === 'string') {
             query = location.trim().toLowerCase()
         } else if (typeof location === 'object' && location !== null) {
-            query = Object.values(location).join(', ');
+            // Get the values of the location object, filter out falsy empty ones, then join them with commas
+            query = Object.values(location).filter(val => val).join(', ');
             query = query.trim().toLowerCase();
             if (!query) {
                 console.error('Empty location', location);
