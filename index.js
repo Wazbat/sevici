@@ -1,3 +1,4 @@
+require('@google-cloud/debug-agent').start();
 const { WebhookClient} = require('dialogflow-fulfillment');
 const express = require('express');
 require('dotenv').config();
