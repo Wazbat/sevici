@@ -35,7 +35,7 @@ class SeviciService {
             }
         });
         if (!res.data || !Array.isArray(res.data)) throw new Error('JCDecaux response not valid');
-        console.debug(`Got ${res.data.length} stations from JCDecaux`, {stations: res.data});
+        console.debug(`Got ${res.data.length} stations from JCDecaux`);
         return res.data;
     }
     /**

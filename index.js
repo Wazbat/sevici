@@ -67,15 +67,7 @@ app.post('/chatbot/fulfillment',  (request, response) => {
     }
     agent.handleRequest(intentFunctions)
         .then(() => {
-            console.debug(`Handled fulfilment request`, {
-                intent: agent.intent,
-                query: agent.query,
-                locale: agent.locale,
-                originalRequest: agent.originalRequest,
-                requestSource: agent.requestSource,
-                session: agent.session,
-                parameters: agent.parameters
-            });
+            console.debug(`Handled fulfilment request for intent: ${agent.intent} - Locale ${agent.locale} - Query: ${agent.query}`);
         })
         .catch(e => {
             // metrics.errors.mark();
