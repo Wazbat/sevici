@@ -15,10 +15,17 @@ const metrics = {
  */
 const db = require('./database');
 class SeviciService {
-    constructor(key = '') {
-        this.apiKey = key;
-        db.getCredentials().then(credentials => this.apiKey = credentials.JCDECAUX);
-        console.log('New Sevici service loaded')
+    constructor() {
+        this.apiKey = '';
+        this.ready = new Promise((resolve, reject) => {
+            try {
+                db.getCredentials().then(credentials => this.apiKey = credentials.JCDECAUX);
+                resolve();
+            } catch (e) {
+                reject(e);
+                throw e;
+            }
+        });
     }
 
     /**
@@ -27,10 +34,12 @@ class SeviciService {
      * target: {coordinates: GeoLibInputCoordinates},
      * closest?: boolean,
      * freeBikes?: boolean,
-     * freeParking?: boolean}}
+     * freeParking?: boolean,
+     * status?: string}}
      * @returns {Promise<>}
      */
     async searchStation(query) {
+        await this.ready;
         if (!query.target || !query.target.coordinates) throw new TypeError('Missing query target');
         /*
         metrics.seviciCallsSec.mark();
@@ -52,6 +61,10 @@ class SeviciService {
         } else if (query.freeParking === false) {
             stations = stations.filter(station => station.available_bike_stands === 0);
         }
+        if (query.status) {
+            stations = stations.filter(station => station.status === query.status);
+        }
+
 
         const orderedStations = geolib.orderByDistance(
             query.target.coordinates,
@@ -62,7 +75,8 @@ class SeviciService {
         return  orderedStations[0];
 
     }
-    async searchStations(query) {
+    async searchStations(query = {}) {
+        await this.ready;
         /*
         metrics.seviciCallsSec.mark();
         metrics.seviciCallsTotal.inc();
@@ -101,6 +115,7 @@ class SeviciService {
 
     }
     async getStationByID(stationNumber) {
+        await this.ready;
         try {
             /*
             metrics.seviciCallsSec.mark();

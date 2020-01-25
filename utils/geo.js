@@ -13,7 +13,6 @@ const stringService = require("./locale");
 class GeoService {
     constructor() {
         // Allowed in https://cloud.google.com/maps-platform/terms/maps-service-terms/ Point 3.4
-        // Used to improve performance
         this.geoCache = new Map();
         this.directionsCache = new Map();
         this.ready = new Promise((resolve, reject) => {
@@ -30,7 +29,6 @@ class GeoService {
                 throw e;
             }
         });
-        console.log('Geo Service loaded');
     }
     /**
      *
@@ -80,7 +78,7 @@ class GeoService {
              */
             cached.cachedUses++;
             this.geoCache.set(query, cached);
-            console.log(`Returned cached result for "${query}". Cached uses: ${cached.cachedUses}`);
+            console.debug(`Returned cached result for "${query}". Cached uses: ${cached.cachedUses}`);
             return cached;
         }
         /*
@@ -101,7 +99,7 @@ class GeoService {
             },
             region: 'ES'
         }).asPromise();
-        console.log(`Got ${response.json.results.length} geocoding results for: ${query}`);
+        console.debug(`Got ${response.json.results.length} geocoding results for: ${query}`);
         if (response.json.results.length) {
             // Check how far the result is from the center of seville
             const distanceFromSeville = geolib.getDistance(response.json.results[0].geometry.location, {lat: 37.387402, lng: -5.987744});
@@ -134,13 +132,15 @@ class GeoService {
                 target: {
                     coordinates: start
                 },
-                freeBikes: true
+                freeBikes: true,
+                status: 'OPEN'
             }),
             seviciService.searchStation({
                 target: {
                     coordinates: end
                 },
-                freeParking: true
+                freeParking: true,
+                status: 'OPEN'
             })
         ]);
         if (!departureStation || !destinationStation) return { error: 'NO_STATION_RESULTS' };
@@ -149,7 +149,7 @@ class GeoService {
         if (cached) {
             cached.cachedUses++;
             this.directionsCache.set(key, cached);
-            console.log('Returning cached directions');
+            console.debug('Returning cached directions for route', {departureStation, destinationStation});
             return cached;
         }
         let matrix;

@@ -12,7 +12,6 @@ const db = new Firestore({
 class Database {
 
     constructor () {
-        console.log('New DB instance');
         this.db = new Firestore();
     }
     async getCredentials() {

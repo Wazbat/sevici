@@ -83,7 +83,8 @@ app.post('/chatbot/fulfillment',  (request, response) => {
 
 app.set('trust proxy', true);
 app.listen(process.env.PORT || 8080, () => {
-    console.info(`App running on port ${process.env.PORT || 8080}`)
+    console.info(`App running on port ${process.env.PORT || 8080}`);
+    console.info(`Instance ${process.env.GAE_INSTANCE} started. Version ${process.env.GAE_VERSION} running on ${process.env.GAE_RUNTIME}`)
 });
 
 
