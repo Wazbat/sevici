@@ -62,7 +62,7 @@ class GeoService {
             query = Object.values(location).filter(val => val).join(', ');
             query = query.trim().toLowerCase();
             if (!query) {
-                console.error('Empty location', location);
+                console.error('Empty location', {location});
                 return { error: 'EMPTY_SEARCH_GEO'};
             }
         } else {
@@ -78,7 +78,7 @@ class GeoService {
              */
             cached.cachedUses++;
             this.geoCache.set(query, cached);
-            console.debug(`Returned cached result for "${query}". Cached uses: ${cached.cachedUses}`);
+            console.debug(`Returned cached result for "${query}". Cached uses: ${cached.cachedUses}`, {query});
             return cached;
         }
         /*
@@ -99,7 +99,7 @@ class GeoService {
             },
             region: 'ES'
         }).asPromise();
-        console.debug(`Got ${response.json.results.length} geocoding results for: ${query}`);
+        console.debug(`Got ${response.json.results.length} geocoding results for: ${query}`, {query, results: response.json.results});
         if (response.json.results.length) {
             // Check how far the result is from the center of seville
             const distanceFromSeville = geolib.getDistance(response.json.results[0].geometry.location, {lat: 37.387402, lng: -5.987744});

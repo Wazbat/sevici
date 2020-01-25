@@ -27,7 +27,17 @@ class SeviciService {
             }
         });
     }
-
+    async getStations(apiKey) {
+        const res = await axios.get('https://api.jcdecaux.com/vls/v1/stations', {
+            params: {
+                apiKey: apiKey,
+                contract: 'seville'
+            }
+        });
+        if (!res.data || !Array.isArray(res.data)) throw new Error('JCDecaux response not valid');
+        console.debug(`Got ${res.data.length} stations from JCDecaux`, {stations: res.data});
+        return res.data;
+    }
     /**
      * Takes an input search query and returns a single station object that matches the query
      * @param query {{
@@ -45,12 +55,8 @@ class SeviciService {
         metrics.seviciCallsSec.mark();
         metrics.seviciCallsTotal.inc();
          */
-        let { data:stations } = await axios.get('https://api.jcdecaux.com/vls/v1/stations', {
-            params: {
-                apiKey: this.apiKey,
-                contract: 'seville'
-            }
-        });
+        let stations = await this.getStations(this.apiKey);
+        console.debug(`Got ${stations.length} stations from jcdecaux`, stations);
         if (query.freeBikes) {
             stations = stations.filter(station => station.available_bikes > 0);
         } else if(query.freeBikes === false) {
@@ -81,13 +87,7 @@ class SeviciService {
         metrics.seviciCallsSec.mark();
         metrics.seviciCallsTotal.inc();
          */
-        let { data:stations } = await axios.get('https://api.jcdecaux.com/vls/v1/stations', {
-            params: {
-                apiKey: this.apiKey,
-                contract: 'seville'
-            }
-        });
-
+        let stations = await this.getStations(this.apiKey);
         const withBikes = stations.filter(station => station.available_bikes > 0);
         const withoutBikes = stations.filter(station => station.available_bikes === 0);
         const withParking = stations.filter(station => station.available_bike_stands > 0);
@@ -129,6 +129,7 @@ class SeviciService {
             });
             return station;
         } catch (e) {
+            // We log it to the console and return null, as axios throws a 404 error when that number isn't found
             console.error(e);
         }
 
