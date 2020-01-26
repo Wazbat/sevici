@@ -1,15 +1,15 @@
 const databaseService = require('./database');
+
+// TODO Migrate to firebase remote config whenever they add support for it
 const configcat = require('configcat-node');
 class FeatureFlagService {
 
     constructor() {
-        // I wish I could just store credentials in an env variable and be done with it ;_;
-        this.ready = new Promise((resolve, reject) => {
+        this.ready = new Promise(async (resolve, reject) => {
             try {
-                databaseService.getCredentials().then(credentials => {
-                    this.configCatClient = configcat.createClient(credentials.CONFIGCAT);
-                    resolve();
-                });
+                const credentials = await databaseService.getCredentials();
+                this.configCatClient = configcat.createClient(credentials.CONFIGCAT);
+                resolve();
             } catch (e) {
                 reject(e);
                 throw e;

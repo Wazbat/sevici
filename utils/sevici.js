@@ -17,9 +17,10 @@ const db = require('./database');
 class SeviciService {
     constructor() {
         this.apiKey = '';
-        this.ready = new Promise((resolve, reject) => {
+        this.ready = new Promise(async (resolve, reject) => {
             try {
-                db.getCredentials().then(credentials => this.apiKey = credentials.JCDECAUX);
+                const credentials = await db.getCredentials();
+                this.apiKey = credentials.JCDECAUX;
                 resolve();
             } catch (e) {
                 reject(e);

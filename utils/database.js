@@ -1,13 +1,4 @@
 const Firestore = require('@google-cloud/firestore');
-/*
-// Maybe I don't need settings if it's AppEngine?
-const db = new Firestore({
-    projectId: process.env.GOOGLE_CLOUD_PROJECT,
-    keyFilename: '/path/to/keyfile.json',
-});
-*/
-
-
 
 class Database {
 
@@ -16,9 +7,16 @@ class Database {
     }
     async getCredentials() {
         if (this.credentials) return this.credentials;
-        let doc = await this.db.collection('keys').doc('production').get();
-        if (!doc.exists) throw new Error ('Production keys not found in firestore');
-        this.credentials = doc.data();
+        if (this.reading) return this.reading;
+        // I create this promise that is saved at a class level. That way I don't make multiple calls to the DB if I call it at the same time
+        this.reading = new Promise(async (resolve) => {
+            let doc = await this.db.collection('keys').doc('production').get();
+            if (!doc.exists) throw new Error ('Production keys not found in firestore');
+            console.debug('Credentials read from firestore');
+            this.credentials = doc.data();
+            resolve(this.credentials);
+        });
+        await this.reading;
         return this.credentials;
     }
 
