@@ -57,7 +57,6 @@ class SeviciService {
         metrics.seviciCallsTotal.inc();
          */
         let stations = await this.getStations(this.apiKey);
-        console.debug(`Got ${stations.length} stations from jcdecaux`, stations);
         if (query.freeBikes) {
             stations = stations.filter(station => station.available_bikes > 0);
         } else if(query.freeBikes === false) {
