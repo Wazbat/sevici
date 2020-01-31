@@ -14,7 +14,7 @@ module.exports = {
             if (target.error) {
                 return conv.ask(stringService.getErrorMessage(target.error, conv.user.locale));
             } else {
-                query.target = target;
+                query.departure = target;
             }
 
         } else {
