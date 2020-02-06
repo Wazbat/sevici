@@ -126,7 +126,7 @@ class UtilsService {
         } else if (localeCode === 'es') {
             let string = `La mejor manera para llegar `;
             if (!query.departure.user) string += `desde ${query.departure.name}`;
-            string += `hacia ${query.destination.name} es recojiendo uno de ${route.departureStation.available_bikes} bicis disponibles ` +
+            string += `hacia ${query.destination.name} es cogiendo una de las ${route.departureStation.available_bikes} bicis disponibles ` +
                 `de ${this.humanizeStationName(route.departureStation.name)}, a ${this.roundDistance(route.departureStationDistance, locale)}, luego viaja `;
             if (route.matrix) string += `${route.matrix.duration} `;
             string += `hacia ${this.humanizeStationName(route.destinationStation.name)} `;

@@ -33,16 +33,17 @@ module.exports = {
 
         const station = await utilsService.updateStationContext(conv);
         const distance = geolib.getDistance(query.target.coordinates, station.position);
+        const localeCode = stringService.getLocale(conv.user.locale);
         let response = '';
         if (query.target.name) {
-            response = stringService.getString('%{station} is %{distance} away to the %{direction} from %{target}')
+            response = stringService.getString('%{station} is %{distance} away to the %{direction} from %{target}', localeCode)
                 .replace('%{station}', utilsService.humanizeStationName(station.name))
                 .replace('%{distance}',utilsService.roundDistance(distance, conv.user.locale))
                 .replace('%{direction}', utilsService.getDirection(query.target.coordinates, station.position))
                 .replace('%{target}', query.target.name);
         } else {
             // TODO Implement this properly... Dummy
-            response = stringService.getString('%{station} is %{distance} away to the %{direction}')
+            response = stringService.getString('%{station} is %{distance} away to the %{direction}', localeCode)
                 .replace('%{station}', utilsService.humanizeStationName(station.name))
                 .replace('%{distance}',utilsService.roundDistance(distance, conv.user.locale))
                 .replace('%{direction}', utilsService.getDirection(query.target.coordinates, station.position))
