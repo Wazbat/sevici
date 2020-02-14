@@ -1,4 +1,7 @@
-require('@google-cloud/debug-agent').start();
+if (process.env.NODE_ENV === 'production') {
+    require('@google-cloud/debug-agent').start();
+    require('@google-cloud/trace-agent').start();
+}
 const { WebhookClient} = require('dialogflow-fulfillment');
 const express = require('express');
 require('dotenv').config();
