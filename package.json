@@ -11,6 +11,7 @@
   "dependencies": {
     "@google-cloud/debug-agent": "^4.2.2",
     "@google-cloud/firestore": "^3.4.1",
+    "@google-cloud/profiler": "^3.0.1",
     "@google-cloud/trace-agent": "^4.2.5",
     "@google/maps": "^1.0.2",
     "@pm2/io": "^4.3.3",
