@@ -142,7 +142,7 @@ class GeoService {
                 status: 'OPEN'
             })
         ]);
-        if (!departureStation || !destinationStation) return { error: 'NO_STATION_RESULTS' };
+        if (!departureStation || !destinationStation) return { error: 'NO_STATIONS_ROUTE' };
         const key = JSON.stringify({start, end});
         const cached = this.directionsCache.get(key);
         if (cached) {

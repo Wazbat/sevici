@@ -114,6 +114,10 @@ class TranslateService {
             NO_STATION_RESULTS: {
                 en: "I couldn't find any stations that match",
                 es: "Perdona. No coincide ninguna estacion con su busqueda"
+            },
+            NO_STATIONS_ROUTE: {
+                en: `I'm sorry, but I couldn't find any stations that'd make that route possible`,
+                es: `Perdona, pero no pude encontrar ninguna estacion para hacer posible ese viaje`
             }
         };
     }
