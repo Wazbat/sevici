@@ -20,8 +20,8 @@ class TranslateService {
                 es: '%{station} esta a %{distance} hacia el %{direction}'
             },
             '%{station} has ${bikeCount} bikes available and ${standCount} spaces to park': {
-                en: '%{station} has ${bikeCount} available bikes and ${standCount} spaces to park',
-                es: '%{station} tiene ${bikeCount} available bikes and ${standCount} spaces to park'
+                en: '%{station} has %{bikeCount} available bikes and %{standCount} spaces to park',
+                es: '%{station} tiene %{bikeCount} available bikes and %{standCount} spaces to park'
             },
             'couldnt find any stations with id %{id}': {
                 en: `I'm sorry, I couldn't find any stations with the ID %{id}`,
@@ -112,7 +112,7 @@ class TranslateService {
                 es: 'Encontré un lugar que coincide con tu busqueda, pero esta a mas de 20km de Sevilla. Intenta decir tu busqueda de manera distinta o escribirlo manualmente'
             },
             NO_STATION_RESULTS: {
-                en: "I couldn't find any stations that mach",
+                en: "I couldn't find any stations that match",
                 es: "Perdona. No coincide ninguna estacion con su busqueda"
             }
         };
