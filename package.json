@@ -10,27 +10,28 @@
   },
   "dependencies": {
     "@google-cloud/debug-agent": "^4.2.2",
-    "@google-cloud/firestore": "^3.4.1",
+    "@google-cloud/firestore": "^3.7.3",
+    "@google-cloud/logging": "^7.3.0",
     "@google-cloud/profiler": "^3.0.1",
     "@google-cloud/trace-agent": "^4.2.5",
     "@google/maps": "^1.0.2",
     "@pm2/io": "^4.3.3",
-    "@sentry/node": "5.11.0",
+    "@sentry/node": "5.15.4",
     "actions-on-google": "^2.12.0",
     "axios": "^0.19.0",
     "build-url": "^2.0.0",
-    "configcat-node": "^3.0.0",
+    "configcat-node": "^4.1.2",
     "dialogflow-fulfillment": "dialogflow/dialogflow-fulfillment-nodejs",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
-    "firebase-admin": "^8.9.2",
+    "firebase-admin": "^8.10.0",
     "geolib": "^3.2.1",
     "lodash": "^4.17.15",
     "moment": "^2.24.0"
   },
   "devDependencies": {
     "@babel/plugin-proposal-class-properties": "^7.8.3",
-    "jest": "^24.9.0"
+    "jest": "^25.2.6"
   },
   "jest": {
     "testEnvironment": "node",
