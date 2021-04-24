@@ -14,6 +14,8 @@ This is then [transformed into a query](https://github.com/Wazbat/sevici/blob/4d
 
 One problem I came accross was a user could request a station, however Google Assistant would not provide the user's location until they answered yes to a consent check. That's why [most intent functions check if the location is present in the request, and if not, performs a permissions request](https://github.com/Wazbat/sevici/blob/4debb6504b05903e6704a910c076d2925e3fbfe0/intentFunctions/app.station.search.js#L8)
 
+Another small limitation was that Google Assistant can't actually display a map widget, however I got around this by sending [cards with an "Image" being a static map generated using relevant data](https://github.com/Wazbat/sevici/blob/2226ebbc67774a724511b85dd0eec2335bdce053/utils/general.js#L190), like a drawing of the route or map markers to show the station
+
 I was really happy with how this project turned out, and it was a huge learning experience for me. I really wanted to optimize it and improve in it, however a lack of spare time combined with a sudden coronavirus pandemic meant that I didn't have the time to continue
 
 [Despite a promising initial reaction](https://i.imgur.com/CvXrE8t.png), a lack of proper responses from Sevici other than "We're waiting for a reply" meant that I eventually lost drive and abandoned the project. Still, it was great fun to learn and see what could be made with these APIs
